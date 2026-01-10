@@ -1,0 +1,170 @@
+---
+/**
+ * ProblemSection.astro
+ * "The Problem" — Empathy section with word-by-word reveal.
+ * Typography-focused, minimal, powerful.
+ */
+---
+
+<section id="problem" class="problem" aria-labelledby="problem-heading">
+  <div class="problem__container">
+    <h2 id="problem-heading" class="sr-only">Why Velocity Bridge exists</h2>
+    
+    <div class="problem__content">
+      <p class="problem__statement" data-reveal="words">
+        Copy on your iPhone.
+      </p>
+      <p class="problem__statement" data-reveal="words">
+        Paste on your Linux machine.
+      </p>
+      <p class="problem__accent" data-reveal="words">
+        No cloud. No apps fighting for your data.
+      </p>
+      <p class="problem__magic" data-reveal="words">
+        Just your local network and <span class="problem__highlight">50ms</span> of magic.
+      </p>
+    </div>
+    
+    {/* Decorative crossed-out cloud icons */}
+    <div class="problem__decoration" aria-hidden="true">
+      <div class="problem__cloud problem__cloud--1">
+        <svg viewBox="0 0 64 48" fill="none">
+          <path d="M52 36H16a12 12 0 0 1-2-23.8A16 16 0 0 1 44.6 8 12 12 0 0 1 52 36z" stroke="currentColor" stroke-width="2"/>
+          <line x1="8" y1="4" x2="56" y2="44" stroke="currentColor" stroke-width="3"/>
+        </svg>
+      </div>
+      <div class="problem__cloud problem__cloud--2">
+        <svg viewBox="0 0 64 48" fill="none">
+          <path d="M52 36H16a12 12 0 0 1-2-23.8A16 16 0 0 1 44.6 8 12 12 0 0 1 52 36z" stroke="currentColor" stroke-width="2"/>
+          <line x1="8" y1="4" x2="56" y2="44" stroke="currentColor" stroke-width="3"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .problem {
+    position: relative;
+    padding: clamp($space-16, 12vw, $space-32) $container-padding;
+    overflow: hidden;
+    
+    &__container {
+      position: relative;
+      max-width: $container-lg;
+      margin: 0 auto;
+    }
+    
+    &__content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    &__statement,
+    &__accent,
+    &__magic {
+      font-family: $font-heading;
+      font-weight: $font-weight-bold;
+      line-height: $line-height-tight;
+      margin-bottom: $space-2;
+      
+      // For word-by-word reveal animation
+      :global(.word) {
+        display: inline-block;
+        overflow: hidden;
+        
+        :global(span) {
+          display: inline-block;
+          will-change: transform, opacity;
+        }
+      }
+    }
+    
+    &__statement {
+      font-size: clamp(1.75rem, 5vw, 3rem);
+      color: $color-text;
+      
+      // First two statements
+      &:nth-of-type(1) {
+        // Copy on your iPhone
+      }
+      
+      &:nth-of-type(2) {
+        // Paste on your Linux machine
+        margin-bottom: $space-6;
+      }
+    }
+    
+    &__accent {
+      font-size: clamp(1.25rem, 3.5vw, 2rem);
+      color: $color-muted;
+      margin-bottom: $space-4;
+    }
+    
+    &__magic {
+      font-size: clamp(1.25rem, 3.5vw, 2rem);
+      color: $color-text-secondary;
+    }
+    
+    &__highlight {
+      color: $color-primary;
+      font-weight: $font-weight-bold;
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -2px;
+        height: 3px;
+        background: $gradient-primary;
+        border-radius: $border-radius-full;
+        transform-origin: left;
+      }
+    }
+    
+    // Decorative clouds
+    &__decoration {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    
+    &__cloud {
+      position: absolute;
+      color: rgba($color-muted, 0.15);
+      
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+      
+      &--1 {
+        top: 10%;
+        right: 5%;
+        width: 120px;
+        transform: rotate(15deg);
+        
+        @include md {
+          width: 160px;
+          right: 10%;
+        }
+      }
+      
+      &--2 {
+        bottom: 15%;
+        right: 15%;
+        width: 80px;
+        transform: rotate(-10deg);
+        
+        @include md {
+          width: 100px;
+          right: 20%;
+        }
+      }
+    }
+  }
+</style>

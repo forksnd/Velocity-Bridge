@@ -1,0 +1,418 @@
+---
+/**
+ * HeroSection.astro
+ * The "wow" moment — animated bridge connecting iOS and Linux islands.
+ * Full viewport, scroll-triggered animations, particle canvas.
+ */
+
+import Button from '../atoms/Button.astro';
+---
+
+<section id="hero" class="hero" aria-label="Welcome to Velocity Bridge">
+  {/* Background glow effects */}
+  <div class="hero__bg" aria-hidden="true">
+    <div class="hero__glow hero__glow--left"></div>
+    <div class="hero__glow hero__glow--right"></div>
+  </div>
+  
+  <div class="hero__container">
+    {/* The Bridge — The Visual Centerpiece */}
+    <div class="hero__bridge-wrapper">
+      {/* iOS Island */}
+      <div class="hero__island hero__island--ios" aria-hidden="true">
+        <div class="hero__island-inner">
+          <svg class="hero__device-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="4" width="32" height="40" rx="4" stroke="currentColor" stroke-width="2"/>
+            <circle cx="24" cy="38" r="2" fill="currentColor"/>
+            <rect x="18" y="8" width="12" height="2" rx="1" fill="currentColor" opacity="0.5"/>
+          </svg>
+          <span class="hero__island-label">iOS</span>
+        </div>
+      </div>
+      
+      {/* Animated Bridge Canvas */}
+      <div class="hero__bridge">
+        <canvas id="bridge-canvas" aria-hidden="true"></canvas>
+        {/* Fallback gradient line for no-JS */}
+        <div class="hero__bridge-fallback" aria-hidden="true"></div>
+      </div>
+      
+      {/* Linux Island */}
+      <div class="hero__island hero__island--linux" aria-hidden="true">
+        <div class="hero__island-inner">
+          <svg class="hero__device-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="8" width="40" height="28" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M4 32h40" stroke="currentColor" stroke-width="2"/>
+            <rect x="18" y="36" width="12" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+            <rect x="14" y="40" width="20" height="2" rx="1" fill="currentColor"/>
+            <text x="24" y="24" text-anchor="middle" fill="currentColor" font-family="monospace" font-size="6">$_</text>
+          </svg>
+          <span class="hero__island-label">Linux</span>
+        </div>
+      </div>
+    </div>
+    
+    {/* Content */}
+    <div class="hero__content">
+      <h1 class="hero__headline">
+        <span class="hero__headline-text" data-split="true">
+          Your clipboard, everywhere.
+        </span>
+      </h1>
+      
+      <p class="hero__subheadline">
+        Seamless sync between iOS and Linux.
+        <span class="hero__subheadline-accent">No cloud. Just magic.</span>
+      </p>
+      
+      <div class="hero__cta">
+        <Button 
+          variant="primary" 
+          size="lg" 
+          href="#install" 
+          icon="arrow-right"
+          magnetic
+        >
+          Download v3.0.0
+        </Button>
+        <Button 
+          variant="secondary" 
+          size="lg" 
+          href="https://github.com/Trex099/velocity-bridge"
+          icon="github"
+          iconPosition="left"
+        >
+          View on GitHub
+        </Button>
+      </div>
+    </div>
+  </div>
+  
+  {/* Scroll indicator */}
+  <div class="hero__scroll-indicator" aria-hidden="true">
+    <div class="hero__scroll-mouse">
+      <div class="hero__scroll-wheel"></div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $space-20 $container-padding $space-16;
+    overflow: hidden;
+    
+    @include md {
+      padding: $space-24 $container-padding $space-16;
+    }
+    
+    // Background
+    &__bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    &__glow {
+      display: none;
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.3;
+      
+      @include md {
+        display: block;
+      }
+      
+      @include reduced-motion {
+        animation: none !important;
+      }
+      
+      &--left {
+        top: 10%;
+        left: -20%;
+        background: $color-primary;
+        animation: floatSlow 20s ease-in-out infinite;
+      }
+      
+      &--right {
+        bottom: 20%;
+        right: -20%;
+        background: $color-accent;
+        animation: floatSlow 25s ease-in-out infinite reverse;
+      }
+    }
+    
+    &__container {
+      position: relative;
+      width: 100%;
+      max-width: $container-xl;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $space-12;
+      
+      @include lg {
+        gap: $space-16;
+      }
+    }
+    
+    // Bridge wrapper — the visual centerpiece
+    &__bridge-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $space-3;
+      width: 100%;
+      max-width: 700px;
+      
+      @include md {
+        gap: $space-8;
+      }
+    }
+    
+    // Island nodes
+    &__island {
+      flex-shrink: 0;
+      will-change: transform;
+      
+      @include reduced-motion {
+        animation: none !important;
+      }
+      
+      &--ios {
+        animation: float 6s ease-in-out infinite;
+      }
+      
+      &--linux {
+        animation: float 6s ease-in-out infinite 3s;
+      }
+    }
+    
+    &__island-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: $space-4;
+      padding: $space-6;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      transition: all $transition-base $ease-out;
+      position: relative;
+      width: 120px;
+      height: 120px;
+      
+      @include md {
+        width: 140px;
+        height: 140px;
+        padding: $space-8;
+        border-radius: 32px;
+      }
+      
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity $transition-base $ease-out;
+        pointer-events: none;
+      }
+      
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        
+        &::after {
+          opacity: 1;
+        }
+      }
+    }
+    
+    &__device-icon {
+      width: 32px;
+      height: 32px;
+      color: #ffffff;
+      opacity: 0.8;
+      transition: opacity $transition-fast $ease-out;
+      
+      @include md {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .hero__island-inner:hover & {
+        opacity: 1;
+      }
+    }
+    
+    &__island-label {
+      font-family: $font-mono;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      transition: color $transition-fast $ease-out;
+      
+      @include md {
+        font-size: 10px;
+      }
+      
+      .hero__island-inner:hover & {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+    
+    // Bridge canvas
+    &__bridge {
+      flex: 1;
+      height: 60px;
+      position: relative;
+      max-width: 300px;
+      min-width: 60px;
+      
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    }
+    
+    &__bridge-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      // Show only when canvas is not rendered
+      .js & {
+        display: none;
+      }
+      
+      &::before {
+        content: '';
+        width: 100%;
+        height: 2px;
+        background: $gradient-primary;
+        border-radius: $border-radius-full;
+      }
+    }
+    
+    // Content section
+    &__content {
+      text-align: center;
+      max-width: 700px;
+    }
+    
+    &__headline {
+      margin-bottom: $space-4;
+    }
+    
+    &__headline-text {
+      font-family: $font-heading;
+      font-size: $font-size-hero;
+      font-weight: $font-weight-bold;
+      line-height: $line-height-tight;
+      letter-spacing: $letter-spacing-tight;
+      color: $color-text;
+      display: block;
+      
+      // For SplitText animation
+      :global(.char) {
+        display: inline-block;
+        will-change: transform, opacity;
+      }
+    }
+    
+    &__subheadline {
+      font-size: clamp(1.125rem, 3vw, 1.375rem);
+      color: $color-text-secondary;
+      line-height: $line-height-relaxed;
+      margin-bottom: $space-8;
+      
+      @include md {
+        margin-bottom: $space-10;
+      }
+    }
+    
+    &__subheadline-accent {
+      display: block;
+      color: $color-primary;
+      margin-top: $space-1;
+      
+      @include md {
+        display: inline;
+        margin-top: 0;
+        
+        &::before {
+          content: ' ';
+        }
+      }
+    }
+    
+    &__cta {
+      display: flex;
+      flex-direction: column;
+      gap: $space-3;
+      
+      @include sm {
+        flex-direction: row;
+        justify-content: center;
+        gap: $space-4;
+      }
+    }
+    
+    // Scroll indicator
+    &__scroll-indicator {
+      position: absolute;
+      bottom: $space-8;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0.5;
+      animation: fadeInUp 1s ease-out 2s both;
+      
+      @include reduced-motion {
+        animation: none;
+        opacity: 0.5;
+      }
+    }
+    
+    &__scroll-mouse {
+      width: 24px;
+      height: 40px;
+      border: 2px solid $color-muted;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      padding-top: 8px;
+    }
+    
+    &__scroll-wheel {
+      width: 4px;
+      height: 8px;
+      background: $color-muted;
+      border-radius: 2px;
+      animation: pulse 2s ease-in-out infinite;
+      
+      @include reduced-motion {
+        animation: none;
+      }
+    }
+  }
+</style>

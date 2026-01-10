@@ -1,0 +1,236 @@
+// ============================================================================
+// VELOCITY BRIDGE — Design Tokens
+// Handcrafted with pixel-perfect precision
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// COLOR SYSTEM
+// Not generic dark mode — rich, intentional palette
+// ----------------------------------------------------------------------------
+
+// Core palette
+$color-background: #0a0a0a; // Pure near-black
+$color-surface: #111111; // Slightly lifted
+$color-surface-elevated: #1a1a1a; // Hover states
+
+// Brand colors (monochrome - Linear style)
+$color-primary: #ffffff; // White for emphasis
+$color-primary-hover: #e5e5e5; // Slightly dimmed
+$color-primary-glow: rgba(255, 255, 255, 0.1);
+
+$color-accent: #888888; // Medium gray for secondary emphasis
+$color-accent-hover: #aaaaaa;
+$color-accent-glow: rgba(136, 136, 136, 0.2);
+
+// Text colors
+$color-text: #f5f5f5; // Near white
+$color-text-secondary: #a3a3a3; // Gray
+$color-muted: #737373; // Dimmed gray
+
+// Semantic colors
+$color-success: #22c55e;
+$color-warning: #f59e0b;
+$color-error: #ef4444;
+
+// Gradient definitions (minimal - just subtle transitions)
+$gradient-primary: linear-gradient(135deg, #ffffff 0%, #a3a3a3 100%);
+$gradient-glow: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+
+// ----------------------------------------------------------------------------
+// TYPOGRAPHY
+// Space Grotesk + JetBrains Mono — geometric, technical, personality
+// ----------------------------------------------------------------------------
+
+// Font families
+$font-heading: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+$font-body: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+$font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+
+// Font sizes (using clamp for fluid scaling)
+$font-size-hero: clamp(2.5rem, 8vw, 4.5rem); // 40px → 72px
+$font-size-h1: clamp(2rem, 5vw, 3rem); // 32px → 48px
+$font-size-h2: clamp(1.75rem, 4vw, 2.5rem); // 28px → 40px
+$font-size-h3: clamp(1.25rem, 3vw, 1.75rem); // 20px → 28px
+$font-size-body: clamp(1rem, 2vw, 1.125rem); // 16px → 18px
+$font-size-small: 0.875rem; // 14px
+$font-size-code: 0.875rem; // 14px
+
+// Font weights
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Line heights
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.7;
+
+// Letter spacing
+$letter-spacing-tight: -0.02em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.02em;
+
+// ----------------------------------------------------------------------------
+// SPACING SYSTEM
+// 4px base unit for mathematical harmony
+// ----------------------------------------------------------------------------
+
+$space-1: 0.25rem; // 4px
+$space-2: 0.5rem; // 8px
+$space-3: 0.75rem; // 12px
+$space-4: 1rem; // 16px
+$space-5: 1.25rem; // 20px
+$space-6: 1.5rem; // 24px
+$space-8: 2rem; // 32px
+$space-10: 2.5rem; // 40px
+$space-12: 3rem; // 48px
+$space-16: 4rem; // 64px
+$space-20: 5rem; // 80px
+$space-24: 6rem; // 96px
+$space-32: 8rem; // 128px
+
+// Container widths
+$container-sm: 640px;
+$container-md: 768px;
+$container-lg: 1024px;
+$container-xl: 1200px;
+$container-2xl: 1400px;
+
+// Container padding
+$container-padding: clamp(1rem, 5vw, 2rem);
+
+// ----------------------------------------------------------------------------
+// BORDERS & RADII
+// Soft, modern corners
+// ----------------------------------------------------------------------------
+
+$border-radius-sm: 6px;
+$border-radius-md: 12px;
+$border-radius-lg: 16px;
+$border-radius-xl: 24px;
+$border-radius-full: 9999px;
+
+$border-width: 1px;
+$border-color: rgba($color-text, 0.1);
+$border-color-hover: rgba($color-text, 0.25);
+
+// ----------------------------------------------------------------------------
+// SHADOWS
+// Layered, atmospheric depth
+// ----------------------------------------------------------------------------
+
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+$shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.6);
+
+// Glow shadows (subtle white)
+$shadow-glow-primary: 0 0 40px rgba(255, 255, 255, 0.05);
+$shadow-glow-accent: 0 0 40px rgba(255, 255, 255, 0.03);
+
+// Card lift effect (no color, just depth)
+$shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+$shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+// ----------------------------------------------------------------------------
+// TRANSITIONS & TIMING
+// Smooth, intentional motion
+// ----------------------------------------------------------------------------
+
+$transition-fast: 150ms;
+$transition-base: 200ms;
+$transition-slow: 300ms;
+$transition-slower: 500ms;
+
+$ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+$ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+$ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+// Shorthand transitions
+$transition-all: all $transition-base $ease-out;
+$transition-transform: transform $transition-base $ease-out;
+$transition-opacity: opacity $transition-base $ease-out;
+$transition-colors: color $transition-base $ease-out,
+    background-color $transition-base $ease-out,
+    border-color $transition-base $ease-out;
+
+// ----------------------------------------------------------------------------
+// BREAKPOINTS
+// Mobile-first approach
+// ----------------------------------------------------------------------------
+
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// Mixins for responsive design
+@mixin sm {
+    @media (min-width: $breakpoint-sm) {
+        @content;
+    }
+}
+
+@mixin md {
+    @media (min-width: $breakpoint-md) {
+        @content;
+    }
+}
+
+@mixin lg {
+    @media (min-width: $breakpoint-lg) {
+        @content;
+    }
+}
+
+@mixin xl {
+    @media (min-width: $breakpoint-xl) {
+        @content;
+    }
+}
+
+// Reduced motion preference
+@mixin reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
+        @content;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Z-INDEX SCALE
+// Consistent layering
+// ----------------------------------------------------------------------------
+
+$z-below: -1;
+$z-base: 0;
+$z-above: 1;
+$z-dropdown: 10;
+$z-sticky: 20;
+$z-overlay: 30;
+$z-modal: 40;
+$z-cursor: 50;
+$z-toast: 60;
+
+// ----------------------------------------------------------------------------
+// CSS CUSTOM PROPERTIES
+// Exported for JavaScript access
+// ----------------------------------------------------------------------------
+
+:root {
+    // Colors
+    --color-bg: #{$color-background};
+    --color-surface: #{$color-surface};
+    --color-primary: #{$color-primary};
+    --color-accent: #{$color-accent};
+    --color-text: #{$color-text};
+    --color-muted: #{$color-muted};
+
+    // Spacing
+    --container-padding: #{$container-padding};
+
+    // Transitions
+    --transition-fast: #{$transition-fast};
+    --transition-base: #{$transition-base};
+}

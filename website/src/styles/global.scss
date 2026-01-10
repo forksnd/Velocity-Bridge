@@ -1,0 +1,304 @@
+// ============================================================================
+// VELOCITY BRIDGE — Global Styles
+// Main stylesheet entry point
+// ============================================================================
+
+// Import variables first - these will be available via additionalData
+// @use '_variables' as *; -- loaded via astro.config.mjs additionalData
+
+// Core partials
+@use 'reset';
+@use 'typography';
+@use 'animations';
+@use 'utilities';
+
+// ----------------------------------------------------------------------------
+// GLOBAL STYLES
+// ----------------------------------------------------------------------------
+
+html {
+    // Smooth scroll (disabled for reduced motion in reset)
+    scroll-behavior: smooth;
+
+    // Prevent horizontal overflow
+    overflow-x: hidden;
+
+    // Dark background immediately
+    background-color: #0a0a0f;
+}
+
+body {
+    // Ensure dark background
+    background-color: #0a0a0f;
+    color: #e4e4e7;
+
+    // Prevent rubber-banding on iOS (optional)
+    overscroll-behavior-y: none;
+
+    // Ensure full height even with little content
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+main {
+    flex: 1;
+}
+
+// ----------------------------------------------------------------------------
+// LINK STYLES
+// Underline animation from left to right
+// ----------------------------------------------------------------------------
+
+a.link {
+    position: relative;
+    color: $color-text;
+    transition: color $transition-fast $ease-out;
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 1px;
+        background: $color-primary;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform $transition-base $ease-out;
+    }
+
+    &:hover {
+        color: $color-primary;
+
+        &::after {
+            transform: scaleX(1);
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+// BUTTON BASE STYLES
+// ----------------------------------------------------------------------------
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-2;
+    padding: $space-3 $space-6;
+    font-family: $font-body;
+    font-size: $font-size-body;
+    font-weight: $font-weight-medium;
+    line-height: 1;
+    border-radius: $border-radius-lg;
+    cursor: pointer;
+    transition: $transition-all;
+    will-change: transform;
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+
+        &:active {
+            transform: none;
+        }
+    }
+}
+
+.btn-primary {
+    @extend .btn;
+    background: $gradient-primary;
+    color: white;
+    border: none;
+
+    &:hover:not(:disabled) {
+        box-shadow: $shadow-glow-primary;
+    }
+}
+
+.btn-secondary {
+    @extend .btn;
+    background: transparent;
+    color: $color-text;
+    border: $border-width solid $border-color;
+
+    &:hover:not(:disabled) {
+        border-color: $color-primary;
+        color: $color-primary;
+    }
+}
+
+.btn-ghost {
+    @extend .btn;
+    background: transparent;
+    color: $color-muted;
+    border: none;
+
+    &:hover:not(:disabled) {
+        color: $color-text;
+        background: rgba($color-text, 0.05);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// AMBIENT BACKGROUND ORBS
+// Floating orbs that subtly react to mouse movement (parallax)
+// ----------------------------------------------------------------------------
+
+.ambient-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+
+    @media (pointer: coarse) {
+        display: none;
+    }
+
+    @include reduced-motion {
+        display: none;
+    }
+}
+
+.ambient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    will-change: transform;
+
+    &--primary {
+        background: radial-gradient(circle, $color-primary 0%, transparent 70%);
+    }
+
+    &--accent {
+        background: radial-gradient(circle, $color-accent 0%, transparent 70%);
+    }
+
+    &--mixed {
+        background: radial-gradient(circle,
+                rgba($color-primary, 0.5) 0%,
+                rgba($color-accent, 0.3) 40%,
+                transparent 70%);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// CUSTOM CURSOR
+// Only on desktop with fine pointer
+// ----------------------------------------------------------------------------
+
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    background: $color-primary;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: $z-cursor;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity $transition-fast;
+    mix-blend-mode: difference;
+    will-change: transform;
+
+    @media (pointer: coarse) {
+        display: none;
+    }
+
+    @include reduced-motion {
+        display: none;
+    }
+}
+
+.custom-cursor__ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba($color-primary, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: $z-cursor - 1;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity $transition-fast,
+        width 0.2s $ease-out,
+        height 0.2s $ease-out,
+        border-color 0.2s $ease-out;
+    will-change: transform;
+
+    @media (pointer: coarse) {
+        display: none;
+    }
+
+    @include reduced-motion {
+        display: none;
+    }
+
+    // Hover state for buttons - enlarged ring
+    &--hover {
+        width: 60px;
+        height: 60px;
+        border-color: rgba($color-accent, 0.6);
+    }
+
+    // Hover state for links - slightly enlarged
+    &--link {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+// Cursor dot hover state
+.custom-cursor--hover {
+    width: 6px;
+    height: 6px;
+    background: $color-accent;
+}
+
+// Cursor hover states
+.cursor-active {
+    .custom-cursor {
+        transform: translate(-50%, -50%) scale(0.5);
+        background: $color-accent;
+    }
+
+    .custom-cursor__ring {
+        transform: translate(-50%, -50%) scale(1.5);
+        border-color: $color-accent;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// NO-JS FALLBACK
+// Show content immediately without animations
+// ----------------------------------------------------------------------------
+
+.no-js {
+
+    .animate-on-scroll,
+    .hero__island,
+    .hero__headline,
+    .hero__subheadline,
+    .hero__cta,
+    .feature-card {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .custom-cursor,
+    .custom-cursor__ring {
+        display: none !important;
+    }
+}

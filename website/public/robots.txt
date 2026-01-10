@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://trex099.github.io/velocity-bridge/sitemap-index.xml

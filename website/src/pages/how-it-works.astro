@@ -1,0 +1,422 @@
+---
+/**
+ * How It Works page
+ * Detailed documentation on using Velocity Bridge.
+ * Covers Back Tap, Home Screen widgets, and bidirectional sync.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout 
+  title="How It Works — Velocity Bridge"
+  description="Learn how to set up and use Velocity Bridge for seamless clipboard sync between iOS and Linux."
+>
+  <div class="docs">
+    <!-- Hero -->
+    <section class="docs__hero">
+      <div class="docs__container">
+        <a href="/Velocity-Bridge" class="docs__back">← Back to home</a>
+        <h1 class="docs__title">How It Works</h1>
+        <p class="docs__subtitle">
+          Two ways to sync your clipboard instantly — both faster than any cloud-based solution.
+        </p>
+      </div>
+    </section>
+
+    <!-- Method 1: Back Tap -->
+    <section class="docs__section">
+      <div class="docs__container">
+        <div class="docs__badge">Method 1</div>
+        <h2 class="docs__heading">Back Tap</h2>
+        <p class="docs__text">
+          Double-tap the back of your iPhone to instantly sync your clipboard. 
+          No app to open, no buttons to press — just tap and it's done.
+        </p>
+        
+        <div class="docs__steps">
+          <div class="docs__step">
+            <span class="docs__step-num">1</span>
+            <div class="docs__step-content">
+              <h3>Open Settings</h3>
+              <p>Go to <strong>Settings → Accessibility → Touch</strong></p>
+            </div>
+          </div>
+          
+          <div class="docs__step">
+            <span class="docs__step-num">2</span>
+            <div class="docs__step-content">
+              <h3>Find Back Tap</h3>
+              <p>Scroll down and tap <strong>Back Tap</strong></p>
+            </div>
+          </div>
+          
+          <div class="docs__step">
+            <span class="docs__step-num">3</span>
+            <div class="docs__step-content">
+              <h3>Set Double Tap</h3>
+              <p>Tap <strong>Double Tap</strong> and select your Velocity shortcut</p>
+            </div>
+          </div>
+          
+          <div class="docs__step">
+            <span class="docs__step-num">4</span>
+            <div class="docs__step-content">
+              <h3>Done!</h3>
+              <p>Now double-tap the back of your iPhone to sync instantly</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="docs__tip">
+          <strong>Pro tip:</strong> Set "Double Tap" for one direction (iOS → Linux) 
+          and "Triple Tap" for the other (Linux → iOS).
+        </div>
+      </div>
+    </section>
+
+    <!-- Method 2: Home Screen Widgets -->
+    <section class="docs__section docs__section--alt">
+      <div class="docs__container">
+        <div class="docs__badge">Method 2</div>
+        <h2 class="docs__heading">Home Screen Widgets</h2>
+        <p class="docs__text">
+          Add both shortcuts to your Home Screen for one-tap access. 
+          Faster than opening any app — just tap and done.
+        </p>
+        
+        <div class="docs__steps">
+          <div class="docs__step">
+            <span class="docs__step-num">1</span>
+            <div class="docs__step-content">
+              <h3>Long Press</h3>
+              <p>Long press on your Home Screen until apps jiggle</p>
+            </div>
+          </div>
+          
+          <div class="docs__step">
+            <span class="docs__step-num">2</span>
+            <div class="docs__step-content">
+              <h3>Add Widget</h3>
+              <p>Tap the <strong>+</strong> button → search "Shortcuts"</p>
+            </div>
+          </div>
+          
+          <div class="docs__step">
+            <span class="docs__step-num">3</span>
+            <div class="docs__step-content">
+              <h3>Select Velocity</h3>
+              <p>Choose your Velocity shortcut from the list</p>
+            </div>
+          </div>
+          
+          <div class="docs__step">
+            <span class="docs__step-num">4</span>
+            <div class="docs__step-content">
+              <h3>Add Both</h3>
+              <p>Repeat for both "Send to Linux" and "Receive from Linux" shortcuts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bidirectional Sync -->
+    <section class="docs__section">
+      <div class="docs__container">
+        <h2 class="docs__heading">Bidirectional Sync</h2>
+        <p class="docs__text">
+          Velocity Bridge works both ways. Copy on iOS, paste on Linux — or copy on Linux, paste on iOS.
+        </p>
+        
+        <div class="docs__grid">
+          <div class="docs__card">
+            <h3 class="docs__card-title">iOS to Linux</h3>
+            <p class="docs__card-text">
+              Copy anything on your iPhone, trigger the shortcut, and paste instantly on your Linux machine.
+            </p>
+          </div>
+          
+          <div class="docs__card">
+            <h3 class="docs__card-title">Linux to iOS</h3>
+            <p class="docs__card-text">
+              Copy on Linux, run the receive shortcut on iOS, and your clipboard is synced instantly.
+            </p>
+          </div>
+        </div>
+
+        <div class="docs__content-types">
+          <h3>Supported Content</h3>
+          <ul>
+            <li><strong>Text</strong> — Messages, code snippets, notes</li>
+            <li><strong>Images</strong> — Screenshots, photos, graphics</li>
+            <li><strong>URLs</strong> — Links are automatically detected and synced</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="docs__section docs__section--cta">
+      <div class="docs__container">
+        <h2 class="docs__heading">Ready to get started?</h2>
+        <p class="docs__text">Download Velocity Bridge and set up in 30 seconds.</p>
+        <a href="/Velocity-Bridge#install" class="docs__cta">Download Now →</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style lang="scss">
+  @use '../styles/_variables' as *;
+  
+  .docs {
+    min-height: 100vh;
+    padding-top: 80px; // Account for fixed header
+    
+    &__container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    
+    &__hero {
+      padding: 4rem 0 3rem;
+      text-align: center;
+    }
+    
+    &__back {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: #71717a;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s ease;
+      
+      &:hover {
+        color: #ffffff;
+      }
+    }
+    
+    &__title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1rem;
+    }
+    
+    &__subtitle {
+      font-size: 1.125rem;
+      color: #71717a;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    &__section {
+      padding: 4rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      
+      &--alt {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      
+      &--cta {
+        text-align: center;
+        padding: 5rem 0;
+      }
+    }
+    
+    &__badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #ffffff;
+      background: rgba(#ffffff, 0.15);
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    
+    &__heading {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 700;
+      color: #e4e4e7;
+      margin-bottom: 1rem;
+    }
+    
+    &__text {
+      font-size: 1.125rem;
+      color: #a1a1aa;
+      line-height: 1.7;
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+    
+    &__steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    &__step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.25rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      
+      h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #e4e4e7;
+        margin-bottom: 0.25rem;
+      }
+      
+      p {
+        font-size: 0.875rem;
+        color: #71717a;
+      }
+    }
+    
+    &__step-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: rgba(#ffffff, 0.15);
+      border-radius: 50%;
+    }
+    
+    &__step-content {
+      flex: 1;
+    }
+    
+    &__tip {
+      margin-top: 2rem;
+      padding: 1rem 1.25rem;
+      background: rgba(#888888, 0.1);
+      border-left: 3px solid #888888;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.875rem;
+      color: #e4e4e7;
+    }
+    
+    &__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    
+    &__card {
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      text-align: center;
+    }
+    
+    &__card-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    &__card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #ffffff;
+      padding: 0.25rem 0.75rem;
+      background: rgba(#ffffff, 0.15);
+      border-radius: 6px;
+    }
+    
+    &__card-icon-arrow {
+      font-size: 1.25rem;
+      color: #71717a;
+    }
+    
+    &__card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #e4e4e7;
+      margin-bottom: 0.5rem;
+    }
+    
+    &__card-text {
+      font-size: 0.875rem;
+      color: #71717a;
+      line-height: 1.6;
+    }
+    
+    &__content-types {
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      
+      h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #e4e4e7;
+        margin-bottom: 1rem;
+      }
+      
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      li {
+        padding: 0.5rem 0;
+        font-size: 0.875rem;
+        color: #a1a1aa;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        strong {
+          color: #e4e4e7;
+        }
+      }
+    }
+    
+    &__cta {
+      display: inline-block;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #000000;
+      background: #ffffff;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: transform 0.2s ease, background 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        background: #e5e5e5;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,34 @@
+---
+/**
+ * index.astro
+ * The Velocity Bridge landing page — where the bridge connects worlds.
+ */
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/organisms/HeroSection.astro';
+import ProblemSection from '../components/organisms/ProblemSection.astro';
+import HowItWorks from '../components/organisms/HowItWorks.astro';
+import FeaturesGrid from '../components/organisms/FeaturesGrid.astro';
+import InstallSection from '../components/organisms/InstallSection.astro';
+import Footer from '../components/organisms/Footer.astro';
+---
+
+<BaseLayout>
+  {/* Hook — Stop the scroll */}
+  <HeroSection />
+  
+  {/* Explain — Why this exists */}
+  <ProblemSection />
+  
+  {/* Show — How it works */}
+  <HowItWorks />
+  
+  {/* Prove — Key differentiators */}
+  <FeaturesGrid />
+  
+  {/* Act — Install */}
+  <InstallSection />
+  
+  {/* Close — Footer */}
+  <Footer />
+</BaseLayout>

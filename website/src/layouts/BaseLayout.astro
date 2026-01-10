@@ -1,0 +1,145 @@
+---
+/**
+ * BaseLayout.astro
+ * Main HTML scaffold with SEO, performance optimizations, and font preloads.
+ * Every detail handcrafted for Velocity Bridge.
+ */
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title = 'Velocity Bridge — Seamless iOS to Linux Clipboard Sync',
+  description = 'Copy on your iPhone. Paste on your Linux machine. No cloud, no tracking — just your local network and 50ms of magic.',
+  ogImage = '/Velocity-Bridge/og-image.png'
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// Import global styles
+import '../styles/global.scss';
+
+// Import components
+import Header from '../components/organisms/Header.astro';
+---
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    
+    <!-- Remove no-js class immediately -->
+    <script is:inline>
+      document.documentElement.classList.remove('no-js');
+    </script>
+    
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="author" content="Trex099" />
+    <meta name="theme-color" content="#0a0a0f" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="Velocity Bridge" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/Velocity-Bridge/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/Velocity-Bridge/logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/Velocity-Bridge/apple-touch-icon.png" />
+    
+    <!-- Font Preloads (Critical) -->
+    <link 
+      rel="preload" 
+      href="/Velocity-Bridge/fonts/SpaceGrotesk-Variable.woff2" 
+      as="font" 
+      type="font/woff2" 
+      crossorigin="anonymous"
+    />
+    <link 
+      rel="preload" 
+      href="/Velocity-Bridge/fonts/JetBrainsMono-Variable.woff2" 
+      as="font" 
+      type="font/woff2" 
+      crossorigin="anonymous"
+    />
+    
+    <!-- Global Styles -->
+
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Velocity Bridge",
+      "operatingSystem": "Linux, iOS",
+      "applicationCategory": "UtilitiesApplication",
+      "description": description,
+      "url": "https://trex099.github.io/velocity-bridge",
+      "author": {
+        "@type": "Person",
+        "name": "Trex099"
+      },
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    })} />
+  </head>
+  
+  <body>
+    <!-- Custom Cursor (desktop only) -->
+    <div class="custom-cursor" aria-hidden="true"></div>
+    <div class="custom-cursor__ring" aria-hidden="true"></div>
+    
+    <!-- Skip to main content (a11y) -->
+    <a href="#main" class="sr-only" style="position:absolute;left:-9999px;top:0;">
+      Skip to main content
+    </a>
+    
+    <!-- Header -->
+    <Header />
+    
+    <!-- Main Content -->
+    <main id="main">
+      <slot />
+    </main>
+    
+    <!-- Initialize scripts after DOM is ready -->
+    <script>
+      import { initAnimations } from '@scripts/animations';
+      import { initCursor } from '@scripts/cursor';
+      import { initBridgeCanvas } from '@scripts/bridge';
+      import { initParticles } from '@scripts/particles';
+      
+      // Wait for DOM
+      document.addEventListener('DOMContentLoaded', () => {
+        initAnimations();
+        initCursor();
+        initBridgeCanvas();
+        initParticles();
+      });
+    </script>
+  </body>
+</html>

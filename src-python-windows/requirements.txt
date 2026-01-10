@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+pillow
+pywin32
+pyinstaller

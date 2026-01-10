@@ -1,0 +1,184 @@
+---
+/**
+ * FeatureCard.astro
+ * Bento grid feature card with spotlight effect on hover.
+ * Used in the 2x2 asymmetric features grid.
+ */
+
+import Icon from '../atoms/Icon.astro';
+
+interface Props {
+  icon: 'lock' | 'bolt' | 'history' | 'sync';
+  title: string;
+  description: string;
+  size?: 'large' | 'small';
+  class?: string;
+}
+
+const { icon, title, description, size = 'small', class: className = '' } = Astro.props;
+---
+
+<article 
+  class:list={[
+    'feature-card',
+    `feature-card--${size}`,
+    className
+  ]}
+>
+  <div class="feature-card__icon">
+    <Icon name={icon} size={size === 'large' ? 48 : 40} />
+  </div>
+  <h3 class="feature-card__title">{title}</h3>
+  <p class="feature-card__description">{description}</p>
+  
+  {/* Spotlight gradient overlay */}
+  <div class="feature-card__spotlight" aria-hidden="true"></div>
+</article>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .feature-card {
+    position: relative;
+    padding: $space-6;
+    background: $color-surface;
+    border-radius: $border-radius-xl;
+    overflow: hidden;
+    transition: transform $transition-base $ease-out, 
+                box-shadow $transition-base $ease-out;
+    will-change: transform;
+    
+    // Subtle border
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: $border-width solid $border-color;
+      border-radius: inherit;
+      pointer-events: none;
+      transition: border-color $transition-base $ease-out;
+    }
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-card-hover;
+      
+      &::before {
+        border-color: rgba(255, 255, 255, 0.15);
+      }
+    }
+    
+    @include reduced-motion {
+      &:hover {
+        transform: none;
+      }
+    }
+    
+    // Size variants
+    &--large {
+      padding: $space-8;
+      
+      @include md {
+        padding: clamp($space-6, 4vw, $space-10);
+      }
+    }
+    
+    &--small {
+      @include md {
+        padding: clamp($space-5, 3vw, $space-6);
+      }
+    }
+    
+    &__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      margin-bottom: $space-4;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: $border-radius-lg;
+      color: $color-text;
+      transition: background $transition-base $ease-out,
+                  transform $transition-base $ease-out;
+      
+      .feature-card--large & {
+        width: 80px;
+        height: 80px;
+        margin-bottom: $space-6;
+      }
+      
+      .feature-card:hover & {
+        background: rgba(255, 255, 255, 0.08);
+        transform: scale(1.05);
+      }
+      
+      @include reduced-motion {
+        .feature-card:hover & {
+          transform: none;
+        }
+      }
+    }
+    
+    &__title {
+      font-family: $font-heading;
+      font-size: clamp(1.25rem, 3vw, 1.5rem);
+      font-weight: $font-weight-semibold;
+      color: $color-text;
+      margin-bottom: $space-2;
+      
+      .feature-card--large & {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+      }
+    }
+    
+    &__description {
+      font-size: $font-size-body;
+      color: $color-muted;
+      line-height: $line-height-relaxed;
+      
+      .feature-card--large & {
+        font-size: clamp(1rem, 2vw, 1.125rem);
+      }
+    }
+    
+    // Spotlight effect that follows cursor
+    &__spotlight {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(255, 255, 255, 0.03),
+        transparent 40%
+      );
+      opacity: 0;
+      transition: opacity $transition-base $ease-out;
+      pointer-events: none;
+      
+      .feature-card:hover & {
+        opacity: 1;
+      }
+    }
+  }
+</style>
+
+<script>
+  // Spotlight effect - track mouse position on each card
+  function initFeatureCards() {
+    const cards = document.querySelectorAll('.feature-card');
+    
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = (card as HTMLElement).getBoundingClientRect();
+        const x = (e as MouseEvent).clientX - rect.left;
+        const y = (e as MouseEvent).clientY - rect.top;
+        
+        (card as HTMLElement).style.setProperty('--mouse-x', `${x}px`);
+        (card as HTMLElement).style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', initFeatureCards);
+  document.addEventListener('astro:after-swap', initFeatureCards);
+</script>

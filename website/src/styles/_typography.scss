@@ -1,0 +1,174 @@
+// ============================================================================
+// VELOCITY BRIDGE — Typography
+// Space Grotesk + JetBrains Mono with optimized loading
+// ============================================================================
+
+// Import variables explicitly
+@use 'variables' as *;
+
+// ----------------------------------------------------------------------------
+// FONT FACE DEFINITIONS
+// Self-hosted variable fonts with font-display: swap
+// ----------------------------------------------------------------------------
+
+// Space Grotesk Variable (300-700)
+@font-face {
+    font-family: 'Space Grotesk';
+    src: url('/Velocity-Bridge/fonts/SpaceGrotesk-Variable.woff2') format('woff2-variations');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+        U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+// JetBrains Mono Variable (100-800)
+@font-face {
+    font-family: 'JetBrains Mono';
+    src: url('/Velocity-Bridge/fonts/JetBrainsMono-Variable.woff2') format('woff2-variations');
+    font-weight: 100 800;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+        U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+// ----------------------------------------------------------------------------
+// FALLBACK FONT MATCHING
+// Reduce CLS by matching fallback metrics to web fonts
+// ----------------------------------------------------------------------------
+
+// System font stack with adjusted metrics
+@font-face {
+    font-family: 'Space Grotesk Fallback';
+    src: local('Arial');
+    size-adjust: 105%;
+    ascent-override: 90%;
+    descent-override: 22%;
+    line-gap-override: 0%;
+}
+
+@font-face {
+    font-family: 'JetBrains Mono Fallback';
+    src: local('Courier New');
+    size-adjust: 98%;
+    ascent-override: 95%;
+    descent-override: 23%;
+    line-gap-override: 0%;
+}
+
+// ----------------------------------------------------------------------------
+// HEADING STYLES
+// Geometric, bold, with tight letter-spacing
+// ----------------------------------------------------------------------------
+
+.heading-hero {
+    font-family: $font-heading, 'Space Grotesk Fallback', sans-serif;
+    font-size: $font-size-hero;
+    font-weight: $font-weight-bold;
+    line-height: $line-height-tight;
+    letter-spacing: $letter-spacing-tight;
+    color: $color-text;
+}
+
+.heading-1 {
+    font-family: $font-heading, 'Space Grotesk Fallback', sans-serif;
+    font-size: $font-size-h1;
+    font-weight: $font-weight-semibold;
+    line-height: $line-height-tight;
+    letter-spacing: $letter-spacing-tight;
+    color: $color-text;
+}
+
+.heading-2 {
+    font-family: $font-heading, 'Space Grotesk Fallback', sans-serif;
+    font-size: $font-size-h2;
+    font-weight: $font-weight-semibold;
+    line-height: $line-height-tight;
+    letter-spacing: $letter-spacing-tight;
+    color: $color-text;
+}
+
+.heading-3 {
+    font-family: $font-heading, 'Space Grotesk Fallback', sans-serif;
+    font-size: $font-size-h3;
+    font-weight: $font-weight-medium;
+    line-height: $line-height-tight;
+    color: $color-text;
+}
+
+// ----------------------------------------------------------------------------
+// BODY TEXT STYLES
+// Readable, generous line-height
+// ----------------------------------------------------------------------------
+
+.body-large {
+    font-family: $font-body, 'Space Grotesk Fallback', sans-serif;
+    font-size: clamp(1.125rem, 2.5vw, 1.25rem);
+    font-weight: $font-weight-regular;
+    line-height: $line-height-relaxed;
+    color: $color-text-secondary;
+}
+
+.body {
+    font-family: $font-body, 'Space Grotesk Fallback', sans-serif;
+    font-size: $font-size-body;
+    font-weight: $font-weight-regular;
+    line-height: $line-height-relaxed;
+    color: $color-text;
+}
+
+.body-small {
+    font-family: $font-body, 'Space Grotesk Fallback', sans-serif;
+    font-size: $font-size-small;
+    font-weight: $font-weight-regular;
+    line-height: $line-height-normal;
+    color: $color-muted;
+}
+
+// ----------------------------------------------------------------------------
+// CODE/MONO STYLES
+// JetBrains Mono with slight background
+// ----------------------------------------------------------------------------
+
+.mono {
+    font-family: $font-mono, 'JetBrains Mono Fallback', monospace;
+    font-size: $font-size-code;
+    font-weight: $font-weight-regular;
+    line-height: $line-height-normal;
+}
+
+// Inline code
+code:not([class*="language-"]) {
+    font-family: $font-mono, 'JetBrains Mono Fallback', monospace;
+    font-size: 0.9em;
+    padding: 0.15em 0.4em;
+    background-color: rgba($color-primary, 0.1);
+    border-radius: $border-radius-sm;
+    color: $color-primary;
+}
+
+// ----------------------------------------------------------------------------
+// TEXT UTILITIES
+// ----------------------------------------------------------------------------
+
+.text-gradient {
+    background: $gradient-primary;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.text-muted {
+    color: $color-muted;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-balance {
+    text-wrap: balance;
+}

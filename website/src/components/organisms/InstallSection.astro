@@ -1,0 +1,230 @@
+---
+/**
+ * InstallSection.astro
+ * Installation commands with distro-specific tabs.
+ * Universal curl command + Arch/Fedora/Debian/Nix tabs.
+ */
+
+import CodeBlock from '../atoms/CodeBlock.astro';
+import DistroTab from '../molecules/DistroTab.astro';
+---
+
+<section id="install" class="install" aria-labelledby="install-heading">
+  <div class="install__container">
+    <h2 id="install-heading" class="install__title">
+      Get Velocity Bridge
+    </h2>
+    
+    <p class="install__subtitle">
+      One command to sync. One second to install.
+    </p>
+    
+    {/* Universal install command */}
+    <div class="install__primary">
+      <CodeBlock 
+        code="curl -fsSL https://get.velocity-bridge.dev | bash"
+        language="bash"
+        copyable
+      />
+    </div>
+    
+    <div class="install__divider">
+      <span>or install via package manager</span>
+    </div>
+    
+    {/* Distro tabs */}
+    <div class="install__tabs" role="tablist" aria-label="Distribution packages">
+      <DistroTab distro="arch" label="Arch" panelId="panel-arch" selected />
+      <DistroTab distro="fedora" label="Fedora" panelId="panel-fedora" />
+      <DistroTab distro="debian" label="Debian" panelId="panel-debian" />
+      <DistroTab distro="nix" label="Nix" panelId="panel-nix" />
+    </div>
+    
+    {/* Tab panels */}
+    <div class="install__panels">
+      <div role="tabpanel" id="panel-arch" aria-labelledby="tab-arch" class="install__panel">
+        <CodeBlock code="yay -S velocity-bridge" language="bash" copyable />
+      </div>
+      
+      <div role="tabpanel" id="panel-fedora" aria-labelledby="tab-fedora" class="install__panel" hidden>
+        <CodeBlock code="sudo dnf install velocity-bridge" language="bash" copyable />
+      </div>
+      
+      <div role="tabpanel" id="panel-debian" aria-labelledby="tab-debian" class="install__panel" hidden>
+        <CodeBlock code="sudo apt install velocity-bridge" language="bash" copyable />
+      </div>
+      
+      <div role="tabpanel" id="panel-nix" aria-labelledby="tab-nix" class="install__panel" hidden>
+        <CodeBlock code="nix profile install github:Trex099/velocity-bridge" language="bash" copyable />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .install {
+    padding: clamp($space-16, 10vw, $space-24) $container-padding;
+    
+    &__container {
+      max-width: $container-md;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    &__title {
+      font-family: $font-heading;
+      font-size: $font-size-h2;
+      font-weight: $font-weight-semibold;
+      color: $color-text;
+      margin-bottom: $space-3;
+    }
+    
+    &__subtitle {
+      font-size: $font-size-body;
+      color: $color-muted;
+      margin-bottom: $space-8;
+    }
+    
+    &__primary {
+      margin-bottom: $space-6;
+    }
+    
+    &__divider {
+      display: flex;
+      align-items: center;
+      gap: $space-4;
+      margin: $space-8 0;
+      color: $color-muted;
+      font-size: $font-size-small;
+      
+      &::before,
+      &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: $border-color;
+      }
+    }
+    
+    &__tabs {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: $space-4;
+      padding: 0 $space-2;
+      
+      @media (min-width: 640px) {
+        gap: 0.75rem;
+        padding: 0;
+      }
+    }
+    
+    &__panels {
+      text-align: left;
+    }
+    
+    &__panel {
+      animation: slideIn $transition-base $ease-out;
+      
+      &[hidden] {
+        display: none;
+      }
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script>
+  // Tab switching logic with keyboard navigation
+  function initInstallTabs() {
+    const tablist = document.querySelector('.install__tabs');
+    if (!tablist) return;
+    
+    const tabs = tablist.querySelectorAll('[role="tab"]');
+    const panels = document.querySelectorAll('[role="tabpanel"]');
+    
+    function switchTab(newTab: Element) {
+      // Deactivate all tabs
+      tabs.forEach(tab => {
+        tab.setAttribute('aria-selected', 'false');
+        tab.classList.remove('distro-tab--active');
+        tab.setAttribute('tabindex', '-1');
+      });
+      
+      // Hide all panels
+      panels.forEach(panel => {
+        panel.setAttribute('hidden', '');
+      });
+      
+      // Activate new tab
+      newTab.setAttribute('aria-selected', 'true');
+      newTab.classList.add('distro-tab--active');
+      newTab.setAttribute('tabindex', '0');
+      
+      // Show associated panel
+      const panelId = newTab.getAttribute('aria-controls');
+      if (panelId) {
+        const panel = document.getElementById(panelId);
+        panel?.removeAttribute('hidden');
+      }
+    }
+    
+    // Click handler
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab));
+    });
+    
+    // Keyboard navigation
+    tablist.addEventListener('keydown', (e) => {
+      const target = e.target as Element;
+      if (!target.matches('[role="tab"]')) return;
+      
+      const tabArray = Array.from(tabs);
+      const currentIndex = tabArray.indexOf(target);
+      let newIndex = currentIndex;
+      
+      switch ((e as KeyboardEvent).key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          newIndex = (currentIndex + 1) % tabArray.length;
+          e.preventDefault();
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          newIndex = (currentIndex - 1 + tabArray.length) % tabArray.length;
+          e.preventDefault();
+          break;
+        case 'Home':
+          newIndex = 0;
+          e.preventDefault();
+          break;
+        case 'End':
+          newIndex = tabArray.length - 1;
+          e.preventDefault();
+          break;
+        default:
+          return;
+      }
+      
+      const newTab = tabArray[newIndex];
+      (newTab as HTMLElement).focus();
+      switchTab(newTab);
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', initInstallTabs);
+  document.addEventListener('astro:after-swap', initInstallTabs);
+</script>

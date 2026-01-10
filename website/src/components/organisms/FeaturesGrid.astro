@@ -1,0 +1,168 @@
+---
+/**
+ * FeaturesGrid.astro
+ * REDESIGN v3: Tight 2x2 bento with consistent card styling.
+ * Small icons, text-forward, visual cohesion.
+ */
+---
+
+<section id="features" class="features">
+  <div class="features__container">
+    <div class="features__header">
+      <span class="features__eyebrow">Features</span>
+      <h2 class="features__heading">Built for privacy.<br/>Tuned for speed.</h2>
+    </div>
+    
+    <div class="features__grid">
+      {/* Card 1: Security - Primary */}
+      <article class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M10 2L3 5.5v4.5c0 4.64 2.98 8.97 7 10 4.02-1.03 7-5.36 7-10V5.5L10 2z" 
+                  stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Local Network Only</h3>
+        <p class="feature-card__desc">
+          Your data never touches the cloud. Direct device-to-device transfer over your home network.
+        </p>
+      </article>
+      
+      {/* Card 2: Speed */}
+      <article class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M11 2L4 12h6l-1 6 7-10h-6l1-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Native Performance</h3>
+        <p class="feature-card__desc">
+          Built with Rust and Tauri. Sub-50ms sync times, minimal resource usage.
+        </p>
+      </article>
+      
+      {/* Card 3: History */}
+      <article class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M10 18a8 8 0 100-16 8 8 0 000 16z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Clipboard History</h3>
+        <p class="feature-card__desc">
+          Search and reuse past clips. Never lose something you copied.
+        </p>
+      </article>
+      
+      {/* Card 4: Bidirectional */}
+      <article class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M4 8h12M12 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 12H4M8 16l-4-4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="feature-card__title">Bidirectional Sync</h3>
+        <p class="feature-card__desc">
+          iOS to Linux and Linux to iOS. Copy anywhere, paste anywhere.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .features {
+    padding: clamp($space-16, 10vw, $space-24) $container-padding;
+    background: $color-surface;
+    
+    &__container {
+      max-width: $container-lg;
+      margin: 0 auto;
+    }
+    
+    &__header {
+      text-align: center;
+      margin-bottom: clamp($space-10, 6vw, $space-12);
+    }
+    
+    &__eyebrow {
+      display: inline-block;
+      font-family: $font-mono;
+      font-size: 0.75rem;
+      font-weight: $font-weight-medium;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: $color-primary;
+      margin-bottom: $space-3;
+    }
+    
+    &__heading {
+      font-family: $font-heading;
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: $font-weight-bold;
+      color: $color-text;
+      line-height: 1.2;
+    }
+    
+    &__grid {
+      display: grid;
+      gap: $space-4;
+      
+      // 2x2 grid on all sizes
+      grid-template-columns: 1fr;
+      
+      @include sm {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      @include lg {
+        gap: $space-5;
+      }
+    }
+  }
+  
+  // Consistent card styling
+  .feature-card {
+    background: $color-background;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: $border-radius-lg;
+    padding: clamp($space-5, 4vw, $space-6);
+    transition: border-color $transition-base $ease-out,
+                box-shadow $transition-base $ease-out;
+    
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 40px -20px rgba(255, 255, 255, 0.15);
+    }
+    
+    &__icon {
+      width: 20px;
+      height: 20px;
+      margin-bottom: $space-4;
+      color: $color-primary;
+      
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    &__title {
+      font-family: $font-heading;
+      font-size: 1.125rem;
+      font-weight: $font-weight-semibold;
+      color: $color-text;
+      margin-bottom: $space-2;
+    }
+    
+    &__desc {
+      font-size: 0.9375rem;
+      color: $color-muted;
+      line-height: 1.6;
+    }
+  }
+</style>

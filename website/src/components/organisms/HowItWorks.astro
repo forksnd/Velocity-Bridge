@@ -1,0 +1,144 @@
+---
+/**
+ * HowItWorks.astro
+ * Clean, simple steps section without connector lines.
+ * Just cards with numbered badges - cleaner look.
+ */
+---
+
+<section id="how-it-works" class="how-it-works">
+  <div class="how-it-works__container">
+    <h2 class="how-it-works__heading">
+      <span class="how-it-works__eyebrow">Setup in</span>
+      30 seconds
+    </h2>
+    
+    <div class="timeline__steps">
+      <div class="step-card">
+        <span class="step-card__badge">1</span>
+        <h3 class="step-card__title">Scan QR</h3>
+        <p class="step-card__desc">Add the shortcut to your iPhone</p>
+      </div>
+      
+      <div class="step-card">
+        <span class="step-card__badge">2</span>
+        <h3 class="step-card__title">Copy</h3>
+        <p class="step-card__desc">Anywhere on iOS — text, images, URLs</p>
+      </div>
+      
+      <div class="step-card">
+        <span class="step-card__badge step-card__badge--accent">3</span>
+        <h3 class="step-card__title">Paste</h3>
+        <p class="step-card__desc">Instantly on Linux. Done.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .how-it-works {
+    padding: clamp(4rem, 10vw, 6rem) clamp(1rem, 5vw, 2rem);
+    
+    &__container {
+      max-width: 1024px;
+      margin: 0 auto;
+    }
+    
+    &__eyebrow {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #71717a;
+      margin-bottom: 0.5rem;
+    }
+    
+    &__heading {
+      text-align: center;
+      margin-bottom: clamp(2rem, 5vw, 3rem);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 8vw, 4rem);
+      font-weight: 700;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+  
+  .timeline__steps {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+    
+    @media (max-width: 767px) {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+  
+  .step-card {
+    flex: 1;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    
+    &:hover {
+      border-color: rgba(#ffffff, 0.25);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    @media (max-width: 767px) {
+      max-width: none;
+    }
+    
+    &__badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      margin-bottom: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: rgba(#ffffff, 0.12);
+      border: 1px solid rgba(#ffffff, 0.25);
+      border-radius: 50%;
+      
+      &--accent {
+        color: #888888;
+        background: rgba(#888888, 0.12);
+        border-color: rgba(#888888, 0.25);
+      }
+    }
+    
+    &__title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #e4e4e7;
+      margin-bottom: 0.375rem;
+    }
+    
+    &__desc {
+      font-size: 0.875rem;
+      color: #71717a;
+      line-height: 1.5;
+    }
+  }
+</style>

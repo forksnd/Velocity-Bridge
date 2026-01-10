@@ -1,0 +1,23 @@
+{
+    "name": "velocity-bridge-website",
+    "type": "module",
+    "version": "1.0.0",
+    "description": "Landing page for Velocity Bridge — iOS to Linux clipboard sync",
+    "author": "Trex099",
+    "license": "GPL-3.0",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "check": "astro check"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "astro": "^5.1.0",
+        "@astrojs/sitemap": "^3.2.1",
+        "@astrojs/check": "^0.9.0",
+        "sass": "^1.83.0",
+        "gsap": "^3.12.7",
+        "typescript": "^5.7.2"
+    }
+}

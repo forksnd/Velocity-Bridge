@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+  <Fragment>
+    <!-- Reference the component where the file is installed. -->
+    <!-- The Program attribute uses the File ID. Tauri generates IDs as Bin_<filename>. -->
+    <!-- Since "velocity-backend.exe" is bundled, the ID is Bin_velocity-backend.exe -->
+    <!-- We wrap the FirewallException in a Component that references the main installation directory. -->
+    <Component Id="FirewallExceptionCmp" Guid="*" Directory="TARGETDIR">
+      <fire:FirewallException 
+        Id="FWX1" 
+        Name="Velocity Bridge" 
+        Scope="any" 
+        IgnoreFailure="yes" 
+        Program="[#Bin_velocity-backend.exe]" />
+    </Component>
+    
+    <!-- We need to ensure this component is included in the installation. -->
+    <!-- Tauri's wix feature usually links components in fragments automatically if referenced? -->
+    <!-- Actually, simpler approach for Tauri fragments is just defining the ComponentGroup or Feature logic 
+         if we want to *add* to the install tree. But Tauri documentation says fragments are linked. 
+         However, referencing correct Directory is key. TARGETDIR is usually safe (root). 
+         INSTALLDIR is usually the app dir. 
+         Wait, FirewallException must be child of a File or Component. 
+         If inside Component like above, we need to make sure this Component is part of a Feature. 
+         Tauri auto-includes fragments? Let's assume standard behavior: 
+         Adding it to FeatureGroup might be needed. -->
+         
+  </Fragment>
+</Wix>

@@ -1,0 +1,250 @@
+// ============================================================================
+// VELOCITY BRIDGE — Animation Keyframes
+// Reusable, performant animations
+// ============================================================================
+
+// Import variables explicitly
+@use 'variables' as *;
+
+// ----------------------------------------------------------------------------
+// FADE ANIMATIONS
+// ----------------------------------------------------------------------------
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// SCALE ANIMATIONS
+// ----------------------------------------------------------------------------
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px $color-primary-glow;
+    }
+
+    50% {
+        box-shadow: 0 0 40px $color-primary-glow, 0 0 60px rgba($color-primary, 0.2);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// SLIDE ANIMATIONS
+// ----------------------------------------------------------------------------
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// FLOAT/DRIFT ANIMATIONS (for islands)
+// ----------------------------------------------------------------------------
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes floatSlow {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-5px) rotate(0.5deg);
+    }
+
+    75% {
+        transform: translateY(5px) rotate(-0.5deg);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// SHIMMER/LOADING ANIMATIONS
+// ----------------------------------------------------------------------------
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// CURSOR ANIMATIONS
+// ----------------------------------------------------------------------------
+
+@keyframes cursorPulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// UNDERLINE ANIMATION (for links)
+// ----------------------------------------------------------------------------
+
+@keyframes underlineExpand {
+    from {
+        transform: scaleX(0);
+        transform-origin: left;
+    }
+
+    to {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// PARTICLE FLOW ANIMATION
+// ----------------------------------------------------------------------------
+
+@keyframes particleFlow {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// ANIMATION UTILITIES
+// ----------------------------------------------------------------------------
+
+.animate-fadeIn {
+    animation: fadeIn $transition-slow $ease-out forwards;
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp $transition-slow $ease-out forwards;
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+
+    @include reduced-motion {
+        animation: none;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+
+    @include reduced-motion {
+        animation: none;
+    }
+}
+
+// Stagger delay utilities
+@for $i from 1 through 10 {
+    .delay-#{$i} {
+        animation-delay: #{$i * 100}ms;
+    }
+}

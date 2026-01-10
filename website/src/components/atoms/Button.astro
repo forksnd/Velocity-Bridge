@@ -1,0 +1,153 @@
+---
+/**
+ * Button.astro
+ * Versatile button component with multiple variants and sizes.
+ * Features: gradient primary, magnetic effect ready, accessible.
+ */
+
+import Icon from './Icon.astro';
+
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  class?: string;
+  magnetic?: boolean;
+  icon?: 'arrow-right' | 'github' | 'copy';
+  iconPosition?: 'left' | 'right';
+}
+
+const { 
+  variant = 'primary', 
+  size = 'md',
+  href,
+  class: className = '',
+  magnetic = false,
+  icon,
+  iconPosition = 'right'
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+const baseProps = href ? { href } : { type: 'button' };
+---
+
+<Tag 
+  {...baseProps}
+  class:list={[
+    'btn',
+    `btn--${variant}`,
+    `btn--${size}`,
+    magnetic && 'magnetic',
+    className
+  ]}
+>
+  {icon && iconPosition === 'left' && <Icon name={icon} size={size === 'sm' ? 16 : size === 'lg' ? 22 : 18} />}
+  <span class="btn__text">
+    <slot />
+  </span>
+  {icon && iconPosition === 'right' && <Icon name={icon} size={size === 'sm' ? 16 : size === 'lg' ? 22 : 18} />}
+</Tag>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-2;
+    font-family: $font-body;
+    font-weight: $font-weight-medium;
+    line-height: 1;
+    text-decoration: none;
+    border-radius: $border-radius-lg;
+    cursor: pointer;
+    transition: all $transition-base $ease-out;
+    will-change: transform, box-shadow;
+    
+    &:active {
+      transform: scale(0.98);
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      
+      &:active {
+        transform: none;
+      }
+    }
+    
+    // Sizes
+    &--sm {
+      padding: $space-2 $space-4;
+      font-size: $font-size-small;
+      border-radius: $border-radius-md;
+    }
+    
+    &--md {
+      padding: $space-3 $space-6;
+      font-size: $font-size-body;
+    }
+    
+    &--lg {
+      padding: $space-4 $space-8;
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      border-radius: $border-radius-xl;
+    }
+    
+    // Variants
+    &--primary {
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      
+      &:hover:not(:disabled) {
+        background: #e5e5e5;
+        transform: translateY(-2px);
+      }
+      
+      &:active:not(:disabled) {
+        transform: translateY(0) scale(0.98);
+      }
+    }
+    
+    &--secondary {
+      background: transparent;
+      color: $color-text;
+      border: $border-width solid $border-color;
+      
+      &:hover:not(:disabled) {
+        border-color: $color-primary;
+        color: $color-primary;
+        background: rgba($color-primary, 0.05);
+      }
+    }
+    
+    &--ghost {
+      background: transparent;
+      color: $color-muted;
+      border: none;
+      padding-inline: $space-3;
+      
+      &:hover:not(:disabled) {
+        color: $color-text;
+        background: rgba($color-text, 0.05);
+      }
+    }
+    
+    &__text {
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    // Icon animation on hover
+    :global(.icon) {
+      transition: transform $transition-fast $ease-out;
+    }
+    
+    &:hover :global(.icon-arrow-right) {
+      transform: translateX(3px);
+    }
+  }
+</style>

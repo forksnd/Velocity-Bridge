@@ -1,0 +1,219 @@
+---
+/**
+ * CodeBlock.astro
+ * Styled terminal/code display with copy-to-clipboard functionality.
+ * Features: syntax highlighting appearance, glow effect, satisfying copy feedback.
+ */
+
+import Icon from './Icon.astro';
+
+interface Props {
+  code: string;
+  language?: 'bash' | 'text';
+  copyable?: boolean;
+}
+
+const { code, language = 'bash', copyable = true } = Astro.props;
+
+// Generate unique ID for this code block
+const id = `code-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div class="code-block" data-language={language}>
+  <div class="code-block__content">
+    {language === 'bash' && <span class="code-block__prompt">$</span>}
+    <pre><code id={id}>{code}</code></pre>
+  </div>
+  
+  {copyable && (
+    <button 
+      class="code-block__copy" 
+      type="button"
+      aria-label="Copy code to clipboard"
+      data-code={code}
+    >
+      <span class="code-block__copy-icon code-block__copy-icon--default">
+        <Icon name="copy" size={18} />
+      </span>
+      <span class="code-block__copy-icon code-block__copy-icon--success">
+        <Icon name="check" size={18} />
+      </span>
+      <span class="code-block__copy-text">Copy</span>
+    </button>
+  )}
+</div>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .code-block {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-4;
+    padding: $space-4 $space-5;
+    background: $color-surface;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-lg;
+    transition: border-color $transition-base $ease-out, 
+                box-shadow $transition-base $ease-out;
+    
+    &:hover {
+      border-color: $border-color-hover;
+    }
+    
+    &:focus-within {
+      border-color: $color-primary;
+      box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+    }
+    
+    &__content {
+      display: flex;
+      align-items: center;
+      gap: $space-3;
+      overflow-x: auto;
+      flex: 1;
+      
+      // Hide scrollbar but allow scroll
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+    
+    &__prompt {
+      color: $color-muted;
+      font-family: $font-mono;
+      font-size: $font-size-code;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    
+    pre {
+      margin: 0;
+      background: transparent;
+    }
+    
+    code {
+      font-family: $font-mono;
+      font-size: $font-size-code;
+      color: $color-text;
+      white-space: nowrap;
+      background: transparent;
+      padding: 0;
+    }
+    
+    &__copy {
+      display: flex;
+      align-items: center;
+      gap: $space-2;
+      padding: $space-2 $space-3;
+      background: rgba($color-primary, 0.1);
+      border: none;
+      border-radius: $border-radius-md;
+      color: $color-primary;
+      font-family: $font-body;
+      font-size: $font-size-small;
+      font-weight: $font-weight-medium;
+      cursor: pointer;
+      transition: $transition-all;
+      flex-shrink: 0;
+      
+      &:hover {
+        background: rgba($color-primary, 0.2);
+      }
+      
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+    
+    &__copy-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      &--success {
+        display: none;
+        color: $color-success;
+      }
+    }
+    
+    &__copy-text {
+      @include md {
+        display: inline;
+      }
+      
+      @media (max-width: $breakpoint-md - 1) {
+        // Hide text on mobile, show only icon
+        display: none;
+      }
+    }
+    
+    // Copied state
+    &.is-copied {
+      .code-block__copy {
+        background: rgba($color-success, 0.15);
+        color: $color-success;
+      }
+      
+      .code-block__copy-icon--default {
+        display: none;
+      }
+      
+      .code-block__copy-icon--success {
+        display: flex;
+      }
+      
+      .code-block__copy-text {
+        &::after {
+          content: '!';
+        }
+      }
+    }
+  }
+</style>
+
+<script>
+  // Initialize all copy buttons
+  function initCodeBlocks() {
+    const copyButtons = document.querySelectorAll('.code-block__copy');
+    
+    copyButtons.forEach(btn => {
+      btn.addEventListener('click', async function(this: HTMLButtonElement) {
+        const code = this.dataset.code;
+        if (!code) return;
+        
+        const codeBlock = this.closest('.code-block');
+        if (!codeBlock) return;
+        
+        try {
+          await navigator.clipboard.writeText(code);
+          
+          // Add success state
+          codeBlock.classList.add('is-copied');
+          
+          // Update button text
+          const textEl = this.querySelector('.code-block__copy-text');
+          if (textEl) {
+            const originalText = textEl.textContent;
+            textEl.textContent = 'Copied';
+            
+            // Reset after delay
+            setTimeout(() => {
+              codeBlock.classList.remove('is-copied');
+              textEl.textContent = originalText;
+            }, 2000);
+          }
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    });
+  }
+  
+  // Run on load and after view transitions
+  document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  document.addEventListener('astro:after-swap', initCodeBlocks);
+</script>

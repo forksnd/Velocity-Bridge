@@ -1,0 +1,143 @@
+---
+/**
+ * Footer.astro
+ * Minimal footer — no clutter, just essentials.
+ */
+
+import Icon from '../atoms/Icon.astro';
+---
+
+<footer class="footer">
+  <div class="footer__container">
+    {/* Logo */}
+    <div class="footer__brand">
+      <span class="footer__logo">Velocity Bridge</span>
+      <span class="footer__version">v3.0.0</span>
+    </div>
+    
+    {/* Links */}
+    <div class="footer__links">
+      <a 
+        href="https://github.com/Trex099/velocity-bridge" 
+        class="footer__link"
+        aria-label="View source on GitHub"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Icon name="github" size={20} />
+        <span>GitHub</span>
+      </a>
+    </div>
+    
+    {/* License and attribution */}
+    <div class="footer__meta">
+      <span class="footer__license">Open Source — GPL-3.0</span>
+      <span class="footer__divider" aria-hidden="true">•</span>
+      <span class="footer__made">
+        Made with <span class="footer__heart" aria-label="love">❤️</span> for Linux
+      </span>
+    </div>
+  </div>
+</footer>
+
+<style lang="scss">
+  @use '../../styles/_variables' as *;
+  
+  .footer {
+    padding: $space-12 $container-padding;
+    background: $color-surface;
+    border-top: $border-width solid $border-color;
+    
+    &__container {
+      max-width: $container-xl;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $space-6;
+      text-align: center;
+      
+      @include md {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+      }
+    }
+    
+    &__brand {
+      display: flex;
+      align-items: center;
+      gap: $space-3;
+    }
+    
+    &__logo {
+      font-family: $font-heading;
+      font-size: 1.125rem;
+      font-weight: $font-weight-semibold;
+      color: $color-text;
+    }
+    
+    &__version {
+      font-family: $font-mono;
+      font-size: $font-size-small;
+      color: $color-muted;
+      padding: $space-1 $space-2;
+      background: rgba($color-primary, 0.1);
+      border-radius: $border-radius-sm;
+    }
+    
+    &__links {
+      display: flex;
+      align-items: center;
+      gap: $space-4;
+    }
+    
+    &__link {
+      display: flex;
+      align-items: center;
+      gap: $space-2;
+      color: $color-text-secondary;
+      font-size: $font-size-small;
+      transition: color $transition-fast $ease-out;
+      
+      &:hover {
+        color: $color-primary;
+      }
+      
+      :global(.icon) {
+        transition: transform $transition-fast $ease-out;
+      }
+      
+      &:hover :global(.icon) {
+        transform: scale(1.1);
+      }
+    }
+    
+    &__meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: $space-2;
+      font-size: $font-size-small;
+      color: $color-muted;
+      
+      @include md {
+        justify-content: flex-end;
+      }
+    }
+    
+    &__divider {
+      opacity: 0.5;
+    }
+    
+    &__heart {
+      display: inline-block;
+      transition: transform $transition-fast $ease-out;
+      
+      .footer__made:hover & {
+        transform: scale(1.2);
+      }
+    }
+  }
+</style>

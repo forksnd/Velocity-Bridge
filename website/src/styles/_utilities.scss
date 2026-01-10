@@ -1,0 +1,228 @@
+// ============================================================================
+// VELOCITY BRIDGE — Utility Classes
+// Minimal, purposeful helpers
+// ============================================================================
+
+// Import variables explicitly
+@use 'variables' as *;
+
+// ----------------------------------------------------------------------------
+// LAYOUT UTILITIES
+// ----------------------------------------------------------------------------
+
+.container {
+    width: 100%;
+    max-width: $container-xl;
+    margin-inline: auto;
+    padding-inline: $container-padding;
+}
+
+.container-narrow {
+    width: 100%;
+    max-width: $container-md;
+    margin-inline: auto;
+    padding-inline: $container-padding;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 {
+    gap: $space-2;
+}
+
+.gap-3 {
+    gap: $space-3;
+}
+
+.gap-4 {
+    gap: $space-4;
+}
+
+.gap-6 {
+    gap: $space-6;
+}
+
+.gap-8 {
+    gap: $space-8;
+}
+
+// ----------------------------------------------------------------------------
+// SPACING UTILITIES
+// ----------------------------------------------------------------------------
+
+// Margin
+.mt-4 {
+    margin-top: $space-4;
+}
+
+.mt-6 {
+    margin-top: $space-6;
+}
+
+.mt-8 {
+    margin-top: $space-8;
+}
+
+.mb-4 {
+    margin-bottom: $space-4;
+}
+
+.mb-6 {
+    margin-bottom: $space-6;
+}
+
+.mb-8 {
+    margin-bottom: $space-8;
+}
+
+// Padding
+.p-4 {
+    padding: $space-4;
+}
+
+.p-6 {
+    padding: $space-6;
+}
+
+.p-8 {
+    padding: $space-8;
+}
+
+.py-4 {
+    padding-block: $space-4;
+}
+
+.py-8 {
+    padding-block: $space-8;
+}
+
+.py-16 {
+    padding-block: $space-16;
+}
+
+.px-4 {
+    padding-inline: $space-4;
+}
+
+.px-6 {
+    padding-inline: $space-6;
+}
+
+// ----------------------------------------------------------------------------
+// VISIBILITY UTILITIES
+// ----------------------------------------------------------------------------
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+// Responsive visibility
+.hide-mobile {
+    @media (max-width: $breakpoint-md - 1) {
+        display: none !important;
+    }
+}
+
+.hide-desktop {
+    @include md {
+        display: none !important;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// INTERACTIVE UTILITIES
+// ----------------------------------------------------------------------------
+
+.magnetic {
+    will-change: transform;
+}
+
+.no-select {
+    user-select: none;
+}
+
+.pointer-events-none {
+    pointer-events: none;
+}
+
+// ----------------------------------------------------------------------------
+// BACKGROUND UTILITIES
+// ----------------------------------------------------------------------------
+
+.bg-surface {
+    background-color: $color-surface;
+}
+
+.bg-gradient {
+    background: $gradient-primary;
+}
+
+// ----------------------------------------------------------------------------
+// BORDER UTILITIES
+// ----------------------------------------------------------------------------
+
+.rounded-md {
+    border-radius: $border-radius-md;
+}
+
+.rounded-lg {
+    border-radius: $border-radius-lg;
+}
+
+.rounded-xl {
+    border-radius: $border-radius-xl;
+}
+
+.rounded-full {
+    border-radius: $border-radius-full;
+}
+
+// ----------------------------------------------------------------------------
+// SECTION UTILITIES
+// ----------------------------------------------------------------------------
+
+.section {
+    padding-block: clamp($space-16, 10vw, $space-24);
+    padding-inline: $container-padding;
+}
+
+.section-heading {
+    font-family: $font-heading;
+    font-size: $font-size-h2;
+    font-weight: $font-weight-semibold;
+    line-height: $line-height-tight;
+    letter-spacing: $letter-spacing-tight;
+    color: $color-text;
+    text-align: center;
+    margin-bottom: $space-12;
+}
