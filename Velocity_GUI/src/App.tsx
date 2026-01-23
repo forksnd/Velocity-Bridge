@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Command } from "@tauri-apps/plugin-shell";
 import { openUrl } from "@tauri-apps/plugin-opener";
 
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import velocityLogo from "./assets/logo.png";
+import Onboarding from "./components/Onboarding";
 import "./App.css";
 
 // iOS Shortcut URLs - update here if shortcuts are recreated
@@ -57,6 +59,26 @@ function App() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [autostart, setAutostart] = useState(false);
   const [isTogglingAutostart, setIsTogglingAutostart] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem("velocityOnboardingCompleted");
+  });
+  const [isFlashActive, setIsFlashActive] = useState(false);
+
+  const handleOnboardingComplete = () => {
+    // 1. Instant Flash
+    setIsFlashActive(true);
+
+    // 2. Switch components while screen is white
+    setTimeout(() => {
+      localStorage.setItem("velocityOnboardingCompleted", "true");
+      setShowOnboarding(false);
+
+      // 3. Fade out the flash smoothly
+      setTimeout(() => {
+        setIsFlashActive(false);
+      }, 100);
+    }, 400);
+  };
 
   // Store child process reference
   const childRef = useRef<{ pid: number; kill: () => Promise<void> } | null>(null);
@@ -399,556 +421,582 @@ function App() {
     }
   };
 
+  // Show onboarding if first time user
   return (
-    <div className="app-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="logo-area">
-          <img src={velocityLogo} alt="Velocity" className="logo-icon" style={{ width: '28px', height: '28px' }} />
-          <span className="logo-text">Velocity</span>
-        </div>
-
-        <nav className="nav-menu">
-          <button
-            className={"nav-item" + (activeTab === "dashboard" ? " active" : "")}
-            onClick={() => setActiveTab("dashboard")}
-          >
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </button>
-
-          <button
-            className={"nav-item" + (activeTab === "history" ? " active" : "")}
-            onClick={() => setActiveTab("history")}
-          >
-            <Search size={20} />
-            <span>History</span>
-          </button>
-
-          <button
-            className={"nav-item" + (activeTab === "qr" ? " active" : "")}
-            onClick={() => setActiveTab("qr")}
-            style={{ border: '2px solid #007AFF', borderRadius: '8px', position: 'relative' }}
-          >
-            <Smartphone size={20} />
-            <span>iOS Setup</span>
-            <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#007AFF', color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 6px', borderRadius: '8px' }}>NEW</span>
-          </button>
-
-          <button
-            className={"nav-item" + (activeTab === "settings" ? " active" : "")}
-            onClick={() => setActiveTab("settings")}
-          >
-            <Settings size={20} />
-            <span>Settings</span>
-          </button>
-        </nav>
-
-        <div className="status-area">
-          <div className={"status-indicator " + (isConnected ? "online" : "offline")}></div>
-          <span className="status-text">{connectionStatus}</span>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <main className="main-content">
-        {/* Status Toast */}
-        {statusMessage && (
-          <div style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            background: '#1e1e1e',
-            color: 'white',
-            padding: '12px 20px',
-            borderRadius: '12px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-            zIndex: 1000,
-            fontSize: '14px',
-            fontWeight: '500',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            animation: 'slideIn 0.3s ease-out'
-          }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#007AFF' }}></div>
-            {statusMessage}
-          </div>
+    <div className="app-main-wrapper">
+      <AnimatePresence>
+        {isFlashActive && (
+          <motion.div
+            key="global-flash"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flashbang-overlay"
+            style={{ zIndex: 9999999 }}
+          />
         )}
+      </AnimatePresence>
 
-        {/* Update Available Banner */}
-        {updateInfo?.available && (
-          <div style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: 'white',
-            padding: '12px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '16px',
-            fontSize: '14px'
-          }}>
-            <span>
-              🎉 <strong>Update available!</strong> Version {updateInfo.latestVersion} is now available.
-            </span>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      {showOnboarding ? (
+        <Onboarding
+          onComplete={handleOnboardingComplete}
+          serverStatus={serverStatus}
+          shortcutIosToLinuxUrl={SHORTCUT_IOS_TO_LINUX_URL}
+          shortcutBidirectionalUrl={SHORTCUT_BIDIRECTIONAL_URL}
+        />
+      ) : (
+        <div className="app-container">
+          {/* Sidebar */}
+          <aside className="sidebar">
+            <div className="logo-area">
+              <img src={velocityLogo} alt="Velocity" className="logo-icon" style={{ width: '28px', height: '28px' }} />
+              <span className="logo-text">Velocity</span>
+            </div>
 
-              {/* AppImage: Native Updater */}
-              {updateInfo.installType === "appimage" && updateInfo.updaterHandle && (
-                <button
-                  onClick={async () => {
-                    if (confirm(`Install update v${updateInfo.latestVersion} and restart?`)) {
-                      await updateInfo.updaterHandle.downloadAndInstall();
-                      // App will restart automatically
-                    }
-                  }}
-                  style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'white', color: '#667eea', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
-                >
-                  Running AppImage: Install & Restart
-                </button>
-              )}
-
-              {/* AppImage Fallback (GitHub) */}
-              {updateInfo.installType === "appimage" && !updateInfo.updaterHandle && (
-                <button
-                  onClick={() => openUrl(`https://github.com/Trex099/Velocity-Bridge/releases/tag/v${updateInfo.latestVersion}`)}
-                  style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'white', color: '#667eea', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
-                >
-                  Download New AppImage
-                </button>
-              )}
-
-              {/* AUR Instruction */}
-              {updateInfo.installType === "aur" && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>
-                  <span>yay -S velocity-bridge</span>
-                  <button onClick={() => copyToClipboard('yay -S velocity-bridge')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>📋</button>
-                </div>
-              )}
-
-              {/* DNF Instruction */}
-              {updateInfo.installType === "dnf" && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>
-                  <span>sudo dnf update velocity-bridge</span>
-                  <button onClick={() => copyToClipboard('sudo dnf update velocity-bridge')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>📋</button>
-                </div>
-              )}
-
-              {/* APT Instruction */}
-              {updateInfo.installType === "apt" && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>
-                  <span>sudo apt update && sudo apt install velocity-bridge</span>
-                  <button onClick={() => copyToClipboard('sudo apt update && sudo apt install velocity-bridge')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>📋</button>
-                </div>
-              )}
-
-              {/* Native Fallback */}
-              {updateInfo.installType === "native" && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '12px', background: 'rgba(255,255,255,0.2)', padding: '6px 10px', borderRadius: '4px' }}>
-                    Update via your System Software Center or Terminal
-                  </span>
-                  <button
-                    onClick={() => openUrl(`https://github.com/Trex099/Velocity-Bridge/releases/tag/v${updateInfo.latestVersion}`)}
-                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.5)', background: 'transparent', color: 'white', cursor: 'pointer', fontSize: '13px' }}
-                  >
-                    View Release
-                  </button>
-                </div>
-              )}
-
-              {/* Manual Fallback */}
-              {(updateInfo.installType === "manual" || !updateInfo.installType) && (
-                <button
-                  onClick={() => openUrl("https://github.com/Trex099/Velocity-Bridge/releases/latest")}
-                  style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'white', color: '#667eea', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
-                >
-                  Download Update
-                </button>
-              )}
+            <nav className="nav-menu">
+              <button
+                className={"nav-item" + (activeTab === "dashboard" ? " active" : "")}
+                onClick={() => setActiveTab("dashboard")}
+              >
+                <LayoutDashboard size={20} />
+                <span>Dashboard</span>
+              </button>
 
               <button
-                onClick={() => setUpdateInfo(null)}
-                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.5)', background: 'transparent', color: 'white', cursor: 'pointer', fontSize: '13px' }}
+                className={"nav-item" + (activeTab === "history" ? " active" : "")}
+                onClick={() => setActiveTab("history")}
               >
-                Dismiss
+                <Search size={20} />
+                <span>History</span>
               </button>
+
+              <button
+                className={"nav-item" + (activeTab === "qr" ? " active" : "")}
+                onClick={() => setActiveTab("qr")}
+                style={{ border: '2px solid #007AFF', borderRadius: '8px', position: 'relative' }}
+              >
+                <Smartphone size={20} />
+                <span>iOS Setup</span>
+                <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#007AFF', color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 6px', borderRadius: '8px' }}>NEW</span>
+              </button>
+
+              <button
+                className={"nav-item" + (activeTab === "settings" ? " active" : "")}
+                onClick={() => setActiveTab("settings")}
+              >
+                <Settings size={20} />
+                <span>Settings</span>
+              </button>
+            </nav>
+
+            <div className="status-area">
+              <div className={"status-indicator " + (isConnected ? "online" : "offline")}></div>
+              <span className="status-text">{connectionStatus}</span>
             </div>
-          </div>
-        )}
+          </aside>
 
-        {/* Dashboard View */}
-        {activeTab === "dashboard" && (
-          <div className="view-dashboard">
-            <header className="view-header">
-              <h1>Dashboard</h1>
-            </header>
-
-            {/* System Status Card */}
-            <div className="dashboard-card">
-              <div className="card-header">
-                <span className="card-label">SYSTEM STATUS</span>
-                <button className="status-toggle" onClick={toggleServer}>
-                  <span className={"toggle-indicator " + (serverEnabled ? "online" : "offline")}></span>
-                  <span>{serverEnabled ? "Online" : "Offline"}</span>
-                </button>
+          {/* Main Content Area */}
+          <main className="main-content">
+            {/* Status Toast */}
+            {statusMessage && (
+              <div style={{
+                position: 'fixed',
+                bottom: '24px',
+                right: '24px',
+                background: '#1e1e1e',
+                color: 'white',
+                padding: '12px 20px',
+                borderRadius: '12px',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                zIndex: 1000,
+                fontSize: '14px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                animation: 'slideIn 0.3s ease-out'
+              }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#007AFF' }}></div>
+                {statusMessage}
               </div>
-              <div className="status-display">
-                <span className={"status-dot " + (serverEnabled && isConnected ? "active" : "")}></span>
-                <span className="status-label">{serverEnabled ? (isConnected ? "Active" : "Starting...") : "Stopped"}</span>
-              </div>
-            </div>
+            )}
 
-            {/* Connection Link Card */}
-            <div className="dashboard-card">
-              <div className="card-header">
-                <span className="card-label">CONNECTION LINK</span>
-              </div>
+            {/* Update Available Banner */}
+            {updateInfo?.available && (
+              <div style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                padding: '12px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px',
+                fontSize: '14px'
+              }}>
+                <span>
+                  🎉 <strong>Update available!</strong> Version {updateInfo.latestVersion} is now available.
+                </span>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 
-              <div className="connection-field">
-                <label>Network Address (use hostname.local or IP)</label>
-                <div className="field-row">
-                  <input
-                    type="text"
-                    readOnly
-                    value={"http://" + (serverStatus?.hostname || serverStatus?.ip || "...") + ":8080"}
-                    className="dark-input"
-                  />
-                  <button
-                    className="field-btn"
-                    onClick={() => navigator.clipboard.writeText("http://" + (serverStatus?.hostname || serverStatus?.ip) + ":8080")}
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
+                  {/* AppImage: Native Updater */}
+                  {updateInfo.installType === "appimage" && updateInfo.updaterHandle && (
+                    <button
+                      onClick={async () => {
+                        if (confirm(`Install update v${updateInfo.latestVersion} and restart?`)) {
+                          await updateInfo.updaterHandle.downloadAndInstall();
+                          // App will restart automatically
+                        }
+                      }}
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'white', color: '#667eea', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
+                    >
+                      Running AppImage: Install & Restart
+                    </button>
+                  )}
 
+                  {/* AppImage Fallback (GitHub) */}
+                  {updateInfo.installType === "appimage" && !updateInfo.updaterHandle && (
+                    <button
+                      onClick={() => openUrl(`https://github.com/Trex099/Velocity-Bridge/releases/tag/v${updateInfo.latestVersion}`)}
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'white', color: '#667eea', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
+                    >
+                      Download New AppImage
+                    </button>
+                  )}
 
-              <div className="connection-field">
-                <label>Access Token</label>
-                <div className="field-row">
-                  <input
-                    type={showToken ? "text" : "password"}
-                    readOnly
-                    value={serverStatus?.token || "Not Configured"}
-                    className="dark-input"
-                  />
-                  <button
-                    className="field-btn"
-                    onClick={() => setShowToken(!showToken)}
-                  >
-                    {showToken ? "Hide" : "Show"}
-                  </button>
-                  <button
-                    className="field-btn"
-                    onClick={regenerateToken}
-                    title="Generate a new security token"
-                  >
-                    New
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* History View */}
-        {activeTab === "history" && (
-          <div className="view-history">
-            <header className="view-header">
-              <h1>Clipboard History</h1>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <div className="search-bar">
-                  <Search size={16} className="search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search history..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <button
-                  onClick={clearHistory}
-                  style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#ff4444', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
-                >
-                  Clear All
-                </button>
-              </div>
-            </header>
-
-            <div className="history-list">
-              {filteredHistory.length === 0 ? (
-                <div className="empty-state">
-                  <span>{searchQuery ? 'No matching items' : 'No items found'}</span>
-                </div>
-              ) : (
-                filteredHistory.map((item, i) => {
-                  // Detect if content is a URL
-                  const isUrl = item.type === "url" || (item.content && (item.content.startsWith("http://") || item.content.startsWith("https://")));
-                  const isImage = item.type === "image";
-
-                  return (
-                    <div key={i} className="history-item">
-                      <div className="item-header">
-                        <span className="item-type">
-                          {isImage ? "🖼️ IMAGE" : isUrl ? "🔗 URL" : "📄 TEXT"}
-                        </span>
-                        <span className="item-time">
-                          {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-                      <div className="item-content">
-                        {isImage ? (
-                          <span style={{ color: '#666', fontSize: '13px' }}>
-                            {item.preview?.replace(/^🖼️\s*/, '') || 'Image saved'}
-                          </span>
-                        ) : isUrl ? (
-                          <a href={item.content} target="_blank" rel="noopener noreferrer" style={{ color: '#007AFF', textDecoration: 'underline' }}>
-                            {item.preview || item.content}
-                          </a>
-                        ) : (
-                          item.preview || item.content
-                        )}
-                      </div>
-                      <div className="item-actions" style={{ gap: '8px' }}>
-                        {isImage ? (
-                          <button onClick={() => copyToClipboard(item.content)}>Copy Path</button>
-                        ) : (
-                          <button onClick={() => copyToClipboard(item.content)}>Copy</button>
-                        )}
-                        {isUrl && (
-                          <button onClick={() => openUrl(item.content)}>Open</button>
-                        )}
-                        {isImage && (
-                          <button onClick={() => openFile(item.content)}>Open</button>
-                        )}
-                      </div>
+                  {/* AUR Instruction */}
+                  {updateInfo.installType === "aur" && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>
+                      <span>yay -S velocity-bridge</span>
+                      <button onClick={() => copyToClipboard('yay -S velocity-bridge')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>📋</button>
                     </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        )
-        }
+                  )}
 
-        {/* QR Codes View */}
-        {
-          activeTab === "qr" && (
-            <div className="view-qr" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px', textAlign: 'center' }}>
-              <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>📱 iOS Setup</h1>
-              <p style={{ color: '#666', marginBottom: '40px', fontSize: '15px' }}>
-                Scan these QR codes with your iPhone Camera to install the Shortcuts
-              </p>
+                  {/* DNF Instruction */}
+                  {updateInfo.installType === "dnf" && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>
+                      <span>sudo dnf update velocity-bridge</span>
+                      <button onClick={() => copyToClipboard('sudo dnf update velocity-bridge')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>📋</button>
+                    </div>
+                  )}
 
-              <div style={{ display: 'flex', flexDirection: 'row', gap: '32px', marginBottom: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <div style={{ background: '#f8f9fa', borderRadius: '16px', padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#007AFF', color: 'white', fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '10px' }}>NEW</span>
-                  <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#333' }}>📱 iOS → Linux</h4>
-                  <QRCodeSVG
-                    value={SHORTCUT_IOS_TO_LINUX_URL}
-                    size={120}
-                    level="M"
-                  />
-                  <span style={{ fontSize: '11px', color: '#888', marginTop: '12px' }}>Text, URL & Images</span>
-                </div>
-                <div style={{ background: '#f8f9fa', borderRadius: '16px', padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-                  <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#007AFF', color: 'white', fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '10px' }}>NEW</span>
-                  <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#333' }}>🔄 Bidirectional</h4>
-                  <QRCodeSVG
-                    value={SHORTCUT_BIDIRECTIONAL_URL}
-                    size={120}
-                    level="M"
-                  />
-                  <span style={{ fontSize: '11px', color: '#888', marginTop: '12px' }}>Linux → iPhone</span>
-                </div>
-              </div>
+                  {/* APT Instruction */}
+                  {updateInfo.installType === "apt" && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>
+                      <span>sudo apt update && sudo apt install velocity-bridge</span>
+                      <button onClick={() => copyToClipboard('sudo apt update && sudo apt install velocity-bridge')} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>📋</button>
+                    </div>
+                  )}
 
-              <div style={{ background: '#f5f5f7', borderRadius: '12px', padding: '24px 32px', maxWidth: '480px', textAlign: 'left' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '600' }}>Setup Instructions</h3>
-                <ol style={{ margin: 0, paddingLeft: '20px', color: '#555', lineHeight: '2', fontSize: '14px' }}>
-                  <li>Scan a QR code with your iPhone Camera</li>
-                  <li>Tap the notification to open in Shortcuts</li>
-                  <li>Tap "Add Shortcut"</li>
-                  <li>Enter your Server IP and Token</li>
-                  <li>Use Back Tap to send content!</li>
-                </ol>
-
-                <div style={{ marginTop: '20px', padding: '12px 16px', background: '#e8f4fd', borderRadius: '8px', fontSize: '13px' }}>
-                  <strong>💡 Pro Tip:</strong> Set up <strong>Back Tap</strong> for instant access!
-                  <div style={{ marginTop: '8px', color: '#555' }}>
-                    Settings → Accessibility → Touch → Back Tap
-                    <br />
-                    • <strong>Double Tap</strong> → iOS to Linux shortcut
-                    <br />
-                    • <strong>Triple Tap</strong> → Bidirectional shortcut
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        }
-
-        {/* Settings View */}
-        {
-          activeTab === "settings" && (
-            <div className="view-settings">
-              <header className="view-header">
-                <h1>Settings</h1>
-              </header>
-
-              <div className="settings-section">
-                <h2>General</h2>
-                <div className="setting-item">
-                  <label>Start at Login</label>
-                  <input
-                    type="checkbox"
-                    checked={autostart}
-                    onChange={toggleAutostart}
-                  />
-                </div>
-              </div>
-
-              <div className="settings-section">
-                <h2>Security</h2>
-                <div className="setting-item">
-                  <label>Security Token</label>
-                  <div className="token-field">
-                    <input
-                      type={showToken ? "text" : "password"}
-                      value={serverStatus?.token || ""}
-                      disabled
-                    />
-                    <button onClick={() => setShowToken(!showToken)}>
-                      {showToken ? "Hide" : "Show"}
-                    </button>
-                    <button onClick={regenerateToken}>
-                      Regenerate
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="settings-section">
-                <h2>Updates</h2>
-                <div className="setting-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                    <label>Application Version</label>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <span style={{ fontFamily: 'monospace', background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px', fontSize: '13px' }}>
-                        v{serverStatus?.version || "3.0.0"}
+                  {/* Native Fallback */}
+                  {updateInfo.installType === "native" && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '12px', background: 'rgba(255,255,255,0.2)', padding: '6px 10px', borderRadius: '4px' }}>
+                        Update via your System Software Center or Terminal
                       </span>
-                      {updateInfo?.available && !isDownloading && (
-                        <span className="update-badge" style={{ background: '#007AFF', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>
-                          UPDATE AVAILABLE
-                        </span>
-                      )}
+                      <button
+                        onClick={() => openUrl(`https://github.com/Trex099/Velocity-Bridge/releases/tag/v${updateInfo.latestVersion}`)}
+                        style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.5)', background: 'transparent', color: 'white', cursor: 'pointer', fontSize: '13px' }}
+                      >
+                        View Release
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Manual Fallback */}
+                  {(updateInfo.installType === "manual" || !updateInfo.installType) && (
+                    <button
+                      onClick={() => openUrl("https://github.com/Trex099/Velocity-Bridge/releases/latest")}
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'white', color: '#667eea', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
+                    >
+                      Download Update
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => setUpdateInfo(null)}
+                    style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.5)', background: 'transparent', color: 'white', cursor: 'pointer', fontSize: '13px' }}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Dashboard View */}
+            {activeTab === "dashboard" && (
+              <div className="view-dashboard">
+                <header className="view-header">
+                  <h1>Dashboard</h1>
+                </header>
+
+                {/* System Status Card */}
+                <div className="dashboard-card">
+                  <div className="card-header">
+                    <span className="card-label">SYSTEM STATUS</span>
+                    <button className="status-toggle" onClick={toggleServer}>
+                      <span className={"toggle-indicator " + (serverEnabled ? "online" : "offline")}></span>
+                      <span>{serverEnabled ? "Online" : "Offline"}</span>
+                    </button>
+                  </div>
+                  <div className="status-display">
+                    <span className={"status-dot " + (serverEnabled && isConnected ? "active" : "")}></span>
+                    <span className="status-label">{serverEnabled ? (isConnected ? "Active" : "Starting...") : "Stopped"}</span>
+                  </div>
+                </div>
+
+                {/* Connection Link Card */}
+                <div className="dashboard-card">
+                  <div className="card-header">
+                    <span className="card-label">CONNECTION LINK</span>
+                  </div>
+
+                  <div className="connection-field">
+                    <label>Network Address (use hostname.local or IP)</label>
+                    <div className="field-row">
+                      <input
+                        type="text"
+                        readOnly
+                        value={"http://" + (serverStatus?.hostname || serverStatus?.ip || "...") + ":8080"}
+                        className="dark-input"
+                      />
+                      <button
+                        className="field-btn"
+                        onClick={() => navigator.clipboard.writeText("http://" + (serverStatus?.hostname || serverStatus?.ip) + ":8080")}
+                      >
+                        Copy
+                      </button>
                     </div>
                   </div>
 
-                  <div className="update-controls" style={{ width: '100%', marginTop: '4px' }}>
-                    {!isDownloading ? (
-                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <button
-                          onClick={updateInfo?.available ? startUpdate : checkForUpdates}
-                          className="primary-btn"
-                          style={{
-                            padding: '8px 20px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            background: updateInfo?.available ? '#22c55e' : '#007AFF',
-                            color: 'white',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            transition: 'all 0.2s'
-                          }}
-                        >
-                          {isChecking ? (
-                            <><RotateCcw size={16} className="spin" /> Checking...</>
-                          ) : updateInfo?.available ? (
-                            <><Download size={16} /> Download & Install v{updateInfo.latestVersion}</>
-                          ) : (
-                            <><RotateCcw size={16} /> Check for Updates</>
-                          )}
-                        </button>
 
-                        {updateInfo && !updateInfo.available && !isChecking && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#22c55e', fontSize: '13px' }}>
-                            <CheckCircle2 size={16} />
-                            <span>You're up to date!</span>
+                  <div className="connection-field">
+                    <label>Access Token</label>
+                    <div className="field-row">
+                      <input
+                        type={showToken ? "text" : "password"}
+                        readOnly
+                        value={serverStatus?.token || "Not Configured"}
+                        className="dark-input"
+                      />
+                      <button
+                        className="field-btn"
+                        onClick={() => setShowToken(!showToken)}
+                      >
+                        {showToken ? "Hide" : "Show"}
+                      </button>
+                      <button
+                        className="field-btn"
+                        onClick={regenerateToken}
+                        title="Generate a new security token"
+                      >
+                        New
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* History View */}
+            {activeTab === "history" && (
+              <div className="view-history">
+                <header className="view-header">
+                  <h1>Clipboard History</h1>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div className="search-bar">
+                      <Search size={16} className="search-icon" />
+                      <input
+                        type="text"
+                        placeholder="Search history..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <button
+                      onClick={clearHistory}
+                      style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#ff4444', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </header>
+
+                <div className="history-list">
+                  {filteredHistory.length === 0 ? (
+                    <div className="empty-state">
+                      <span>{searchQuery ? 'No matching items' : 'No items found'}</span>
+                    </div>
+                  ) : (
+                    filteredHistory.map((item, i) => {
+                      // Detect if content is a URL
+                      const isUrl = item.type === "url" || (item.content && (item.content.startsWith("http://") || item.content.startsWith("https://")));
+                      const isImage = item.type === "image";
+
+                      return (
+                        <div key={i} className="history-item">
+                          <div className="item-header">
+                            <span className="item-type">
+                              {isImage ? "🖼️ IMAGE" : isUrl ? "🔗 URL" : "📄 TEXT"}
+                            </span>
+                            <span className="item-time">
+                              {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <div className="item-content">
+                            {isImage ? (
+                              <span style={{ color: '#666', fontSize: '13px' }}>
+                                {item.preview?.replace(/^🖼️\s*/, '') || 'Image saved'}
+                              </span>
+                            ) : isUrl ? (
+                              <a href={item.content} target="_blank" rel="noopener noreferrer" style={{ color: '#007AFF', textDecoration: 'underline' }}>
+                                {item.preview || item.content}
+                              </a>
+                            ) : (
+                              item.preview || item.content
+                            )}
+                          </div>
+                          <div className="item-actions" style={{ gap: '8px' }}>
+                            {isImage ? (
+                              <button onClick={() => copyToClipboard(item.content)}>Copy Path</button>
+                            ) : (
+                              <button onClick={() => copyToClipboard(item.content)}>Copy</button>
+                            )}
+                            {isUrl && (
+                              <button onClick={() => openUrl(item.content)}>Open</button>
+                            )}
+                            {isImage && (
+                              <button onClick={() => openFile(item.content)}>Open</button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )
+            }
+
+            {/* QR Codes View */}
+            {
+              activeTab === "qr" && (
+                <div className="view-qr" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px', textAlign: 'center' }}>
+                  <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>📱 iOS Setup</h1>
+                  <p style={{ color: '#666', marginBottom: '40px', fontSize: '15px' }}>
+                    Scan these QR codes with your iPhone Camera to install the Shortcuts
+                  </p>
+
+                  <div style={{ display: 'flex', flexDirection: 'row', gap: '32px', marginBottom: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <div style={{ background: '#f8f9fa', borderRadius: '16px', padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                      <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#007AFF', color: 'white', fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '10px' }}>NEW</span>
+                      <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#333' }}>📱 iOS → Linux</h4>
+                      <QRCodeSVG
+                        value={SHORTCUT_IOS_TO_LINUX_URL}
+                        size={120}
+                        level="M"
+                      />
+                      <span style={{ fontSize: '11px', color: '#888', marginTop: '12px' }}>Text, URL & Images</span>
+                    </div>
+                    <div style={{ background: '#f8f9fa', borderRadius: '16px', padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                      <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#007AFF', color: 'white', fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '10px' }}>NEW</span>
+                      <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#333' }}>🔄 Bidirectional</h4>
+                      <QRCodeSVG
+                        value={SHORTCUT_BIDIRECTIONAL_URL}
+                        size={120}
+                        level="M"
+                      />
+                      <span style={{ fontSize: '11px', color: '#888', marginTop: '12px' }}>Linux → iPhone</span>
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#f5f5f7', borderRadius: '12px', padding: '24px 32px', maxWidth: '480px', textAlign: 'left' }}>
+                    <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '600' }}>Setup Instructions</h3>
+                    <ol style={{ margin: 0, paddingLeft: '20px', color: '#555', lineHeight: '2', fontSize: '14px' }}>
+                      <li>Scan a QR code with your iPhone Camera</li>
+                      <li>Tap the notification to open in Shortcuts</li>
+                      <li>Tap "Add Shortcut"</li>
+                      <li>Enter your Server IP and Token</li>
+                      <li>Use Back Tap to send content!</li>
+                    </ol>
+
+                    <div style={{ marginTop: '20px', padding: '12px 16px', background: '#e8f4fd', borderRadius: '8px', fontSize: '13px' }}>
+                      <strong>💡 Pro Tip:</strong> Set up <strong>Back Tap</strong> for instant access!
+                      <div style={{ marginTop: '8px', color: '#555' }}>
+                        Settings → Accessibility → Touch → Back Tap
+                        <br />
+                        • <strong>Double Tap</strong> → iOS to Linux shortcut
+                        <br />
+                        • <strong>Triple Tap</strong> → Bidirectional shortcut
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+
+            {/* Settings View */}
+            {
+              activeTab === "settings" && (
+                <div className="view-settings">
+                  <header className="view-header">
+                    <h1>Settings</h1>
+                  </header>
+
+                  <div className="settings-section">
+                    <h2>General</h2>
+                    <div className="setting-item">
+                      <label>Start at Login</label>
+                      <input
+                        type="checkbox"
+                        checked={autostart}
+                        onChange={toggleAutostart}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="settings-section">
+                    <h2>Security</h2>
+                    <div className="setting-item">
+                      <label>Security Token</label>
+                      <div className="token-field">
+                        <input
+                          type={showToken ? "text" : "password"}
+                          value={serverStatus?.token || ""}
+                          disabled
+                        />
+                        <button onClick={() => setShowToken(!showToken)}>
+                          {showToken ? "Hide" : "Show"}
+                        </button>
+                        <button onClick={regenerateToken}>
+                          Regenerate
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="settings-section">
+                    <h2>Updates</h2>
+                    <div className="setting-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                        <label>Application Version</label>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <span style={{ fontFamily: 'monospace', background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px', fontSize: '13px' }}>
+                            v{serverStatus?.version || "3.0.0"}
+                          </span>
+                          {updateInfo?.available && !isDownloading && (
+                            <span className="update-badge" style={{ background: '#007AFF', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>
+                              UPDATE AVAILABLE
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="update-controls" style={{ width: '100%', marginTop: '4px' }}>
+                        {!isDownloading ? (
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                            <button
+                              onClick={updateInfo?.available ? startUpdate : checkForUpdates}
+                              className="primary-btn"
+                              style={{
+                                padding: '8px 20px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                background: updateInfo?.available ? '#22c55e' : '#007AFF',
+                                color: 'white',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {isChecking ? (
+                                <><RotateCcw size={16} className="spin" /> Checking...</>
+                              ) : updateInfo?.available ? (
+                                <><Download size={16} /> Download & Install v{updateInfo.latestVersion}</>
+                              ) : (
+                                <><RotateCcw size={16} /> Check for Updates</>
+                              )}
+                            </button>
+
+                            {updateInfo && !updateInfo.available && !isChecking && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#22c55e', fontSize: '13px' }}>
+                                <CheckCircle2 size={16} />
+                                <span>You're up to date!</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="download-progress-container" style={{ width: '100%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                              <span style={{ color: '#007AFF', fontWeight: '500' }}>{updateStatus}</span>
+                              <span>{downloadProgress}%</span>
+                            </div>
+                            <div className="progress-bar-bg" style={{ height: '8px', background: '#ccc', borderRadius: '4px', overflow: 'hidden' }}>
+                              <div
+                                className="progress-bar-fill"
+                                style={{
+                                  height: '100%',
+                                  width: `${downloadProgress}%`,
+                                  background: '#007AFF',
+                                  transition: 'width 0.3s ease'
+                                }}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
-                    ) : (
-                      <div className="download-progress-container" style={{ width: '100%' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-                          <span style={{ color: '#007AFF', fontWeight: '500' }}>{updateStatus}</span>
-                          <span>{downloadProgress}%</span>
-                        </div>
-                        <div className="progress-bar-bg" style={{ height: '8px', background: '#ccc', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div
-                            className="progress-bar-fill"
-                            style={{
-                              height: '100%',
-                              width: `${downloadProgress}%`,
-                              background: '#007AFF',
-                              transition: 'width 0.3s ease'
-                            }}
-                          />
-                        </div>
+                    </div>
+                  </div>
+
+                  {/* iOS Setup QR Codes Card */}
+                  <div className="dashboard-card">
+                    <div className="card-header">
+                      <span className="card-label">iOS SETUP</span>
+                      <Smartphone size={18} style={{ color: '#007AFF' }} />
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#666', margin: '8px 0 16px' }}>
+                      Scan with your iPhone Camera to install Shortcuts
+                    </p>
+
+                    <div className="qr-container">
+                      <div className="qr-item">
+                        <h4>📱 iOS → Linux</h4>
+                        <QRCodeSVG
+                          value={SHORTCUT_IOS_TO_LINUX_URL}
+                          size={120}
+                          level="M"
+                        />
+                        <span className="qr-label">Text, URL & Images</span>
                       </div>
-                    )}
+                      <div className="qr-item">
+                        <h4>🔄 Bidirectional</h4>
+                        <QRCodeSVG
+                          value={SHORTCUT_BIDIRECTIONAL_URL}
+                          size={120}
+                          level="M"
+                        />
+                        <span className="qr-label">Linux → iPhone</span>
+                      </div>
+                    </div>
+
+                    <div style={{ background: '#f5f5f7', borderRadius: '8px', padding: '12px', marginTop: '16px' }}>
+                      <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
+                        <strong>Setup:</strong> 1. Scan QR  →  2. Add Shortcut  →  3. Enter IP & Token
+                      </p>
+                    </div>
                   </div>
+
                 </div>
-              </div>
+              )
+            }
 
-              {/* iOS Setup QR Codes Card */}
-              <div className="dashboard-card">
-                <div className="card-header">
-                  <span className="card-label">iOS SETUP</span>
-                  <Smartphone size={18} style={{ color: '#007AFF' }} />
-                </div>
-                <p style={{ fontSize: '13px', color: '#666', margin: '8px 0 16px' }}>
-                  Scan with your iPhone Camera to install Shortcuts
-                </p>
-
-                <div className="qr-container">
-                  <div className="qr-item">
-                    <h4>📱 iOS → Linux</h4>
-                    <QRCodeSVG
-                      value={SHORTCUT_IOS_TO_LINUX_URL}
-                      size={120}
-                      level="M"
-                    />
-                    <span className="qr-label">Text, URL & Images</span>
-                  </div>
-                  <div className="qr-item">
-                    <h4>🔄 Bidirectional</h4>
-                    <QRCodeSVG
-                      value={SHORTCUT_BIDIRECTIONAL_URL}
-                      size={120}
-                      level="M"
-                    />
-                    <span className="qr-label">Linux → iPhone</span>
-                  </div>
-                </div>
-
-                <div style={{ background: '#f5f5f7', borderRadius: '8px', padding: '12px', marginTop: '16px' }}>
-                  <p style={{ fontSize: '12px', color: '#666', margin: 0 }}>
-                    <strong>Setup:</strong> 1. Scan QR  →  2. Add Shortcut  →  3. Enter IP & Token
-                  </p>
-                </div>
-              </div>
-
-            </div>
-          )
-        }
-
-      </main >
-    </div >
+          </main >
+        </div >
+      )}
+    </div>
   );
 }
 

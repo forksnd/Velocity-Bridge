@@ -156,6 +156,7 @@ release_build.log
 verification_run*.txt
 final_run_log.txt
 dev_log.txt
+convo.txt
 
 # ------------------------------------------
 #  9. OS FILES
@@ -182,3 +183,5 @@ mailmap.filter
 particle-background-export/
 linuxdeploy*
 *.AppImage.bak
+release_build.sh
+* release/
