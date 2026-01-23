@@ -1,6 +1,6 @@
 # Maintainer: Trex099 <trex099@github.com>
 pkgname=velocity-bridge
-pkgver=3.0.0
+pkgver=3.0.1
 pkgrel=1
 pkgdesc="iOS to Linux Clipboard Sync - Copy on iPhone, paste on Linux"
 arch=('x86_64')
@@ -11,6 +11,9 @@ depends=(
     'gtk3'
     'wl-clipboard'
     'xclip'
+    'openssl'
+    'imagemagick'
+    'avahi'
 )
 optdepends=(
     'libappindicator-gtk3: system tray support'

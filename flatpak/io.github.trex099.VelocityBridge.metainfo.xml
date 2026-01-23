@@ -48,6 +48,17 @@
   <content_rating type="oars-1.1" />
   
   <releases>
+    <release version="3.0.0" date="2025-01-20">
+      <description>
+        <p>Major Update - Tauri v2 Upgrade</p>
+        <ul>
+          <li>Upgraded to Tauri v2 for improved performance</li>
+          <li>Enhanced system tray integration</li>
+          <li>iOS Setup guide with QR codes</li>
+          <li>Improved clipboard sync reliability</li>
+        </ul>
+      </description>
+    </release>
     <release version="2.0.4" date="2024-12-10">
       <description>
         <p>Smart Update Release</p>

@@ -1,5 +1,5 @@
 Name:           velocity-bridge
-Version: 3.0.0
+Version: 3.0.1
 Release:        1%{?dist}
 Summary:        iOS to Linux Clipboard Sync
 
@@ -13,6 +13,8 @@ Requires:       webkit2gtk4.1
 Requires:       gtk3
 Requires:       wl-clipboard
 Requires:       libappindicator-gtk3
+Requires:       ImageMagick
+Requires:       avahi
 
 %description
 Velocity Bridge syncs your iPhone clipboard to your Linux desktop.

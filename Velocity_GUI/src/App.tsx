@@ -76,7 +76,7 @@ function App() {
         // No zombie or fuser not available - that's fine
       }
 
-      const command = Command.sidecar("server");
+      const command = Command.sidecar("velocity-backend");
       const child = await command.spawn();
       childRef.current = child;
       console.log("Sidecar spawned with PID:", child.pid);

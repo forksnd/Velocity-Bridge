@@ -115,6 +115,7 @@ fn kill_server() {
 
 #[cfg(target_os = "windows")]
 fn kill_server() {
+    use std::os::windows::process::CommandExt;
     let _ = std::process::Command::new("taskkill")
         .args(["/F", "/IM", "velocity-backend.exe", "/T"])
         .creation_flags(0x08000000) // CREATE_NO_WINDOW

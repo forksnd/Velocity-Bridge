@@ -1,7 +1,7 @@
 app-id: io.github.trex099.VelocityBridge
-runtime: org.freedesktop.Platform
-runtime-version: '24.08'
-sdk: org.freedesktop.Sdk
+runtime: org.gnome.Platform
+runtime-version: '46'
+sdk: org.gnome.Sdk
 command: velocity-bridge
 
 finish-args:
@@ -33,14 +33,11 @@ modules:
     buildsystem: simple
     build-commands:
       # Extract AppImage
-      - chmod +x Velocity-Bridge_2.0.4_amd64.AppImage
-      - ./Velocity-Bridge_2.0.4_amd64.AppImage --appimage-extract
+      - chmod +x Velocity-Bridge_3.0.0_amd64.AppImage
+      - ./Velocity-Bridge_3.0.0_amd64.AppImage --appimage-extract
       
-      # Install binary
+      # Install binary only - DO NOT copy bundled libs (fixes OpenSSL mismatch)
       - install -Dm755 squashfs-root/usr/bin/velocity-bridge /app/bin/velocity-bridge
-      
-      # Install libraries (Tauri bundles its own WebKit)
-      - cp -r squashfs-root/usr/lib/* /app/lib/ || true
       
       # Install desktop file
       - install -Dm644 io.github.trex099.VelocityBridge.desktop /app/share/applications/io.github.trex099.VelocityBridge.desktop
@@ -54,9 +51,9 @@ modules:
     sources:
       # AppImage from GitHub Release
       - type: file
-        url: https://github.com/Trex099/Velocity-Bridge/releases/download/v2.0.4/Velocity-Bridge_2.0.4_amd64.AppImage
-        sha256: e68bb1f946c51829b2fbb87e26536d6011d03ae81afb9751971ca7062c1aa87c
-        dest-filename: Velocity-Bridge_2.0.4_amd64.AppImage
+        url: https://github.com/Trex099/Velocity-Bridge/releases/download/v3.0.0/Velocity-Bridge_3.0.0_amd64.AppImage
+        sha256: 3937bff737919e3590f312633c6c7a780b76484d744bca347020b70f5c38079d
+        dest-filename: Velocity-Bridge_3.0.0_amd64.AppImage
       
       # Desktop file
       - type: file

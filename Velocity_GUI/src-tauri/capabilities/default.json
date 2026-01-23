@@ -20,7 +20,7 @@
       "identifier": "shell:allow-spawn",
       "allow": [
         {
-          "name": "server",
+          "name": "velocity-backend",
           "sidecar": true,
           "args": true
         }

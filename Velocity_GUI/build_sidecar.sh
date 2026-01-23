@@ -1,38 +1,58 @@
 #!/bin/bash
+# Velocity Bridge - Sidecar Build Script
+# This script ensures the Python backend is bundled correctly for Tauri.
+
 set -e
 
-# Get script directory to allow running from anywhere
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$DIR"
-
-echo "🐍 Rebuilding Python Backend..."
-
-# Check for venv
-if [ -d "src-python/venv" ]; then
-    source src-python/venv/bin/activate
+# Target triple detection
+if [ -z "$1" ]; then
+  # Auto-detect if not provided
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    TARGET_TRIPLE="x86_64-unknown-linux-gnu"
+  elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    TARGET_TRIPLE="x86_64-pc-windows-msvc"
+  else
+    echo "❌ Unknown OS type: $OSTYPE. Please provide target triple as first argument."
+    exit 1
+  fi
 else
-    echo "⚠️  Virtual environment not found in src-python/venv"
-    echo "   Attempting to use system python or failing..."
-    # Fallback or exit? For now, assume venv is required as per project setup.
-    # But for CI/CD, maybe just 'python' is enough.
-    # Let's try to proceed if pyinstaller is in path
-    if ! command -v pyinstaller &> /dev/null; then
-        echo "❌ PyInstaller not found and no venv detected."
-        exit 1
-    fi
+  TARGET_TRIPLE="$1"
 fi
 
-cd src-python
-# Clean previous builds
+echo "🚀 Building Velocity Sidecar for $TARGET_TRIPLE..."
+
+# Paths
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON_DIR="$PROJECT_ROOT/src-python"
+TAURI_BIN_DIR="$PROJECT_ROOT/src-tauri"
+
+# 1. Clean up
+cd "$PYTHON_DIR"
 rm -rf build dist
-# Run PyInstaller - use velocity-backend to match tauri.conf.json/git binary
-pyinstaller --onefile --name velocity-backend --clean server.py --distpath dist --workpath build --specpath .
 
-# Copy to Tauri binaries
-echo "🚚 Copying binary to src-tauri location..."
-mkdir -p ../src-tauri/binaries
-cp dist/velocity-backend ../src-tauri/binaries/velocity-backend-x86_64-unknown-linux-gnu
+# 2. Build with PyInstaller
+# Note: Hidden imports are crucial for uvicorn/fastapi to work in a bundled environment
+pyinstaller --onefile --name velocity-backend \
+  --hidden-import=uvicorn.logging \
+  --hidden-import=uvicorn.loops \
+  --hidden-import=uvicorn.loops.auto \
+  --hidden-import=uvicorn.protocols \
+  --hidden-import=uvicorn.protocols.http \
+  --hidden-import=uvicorn.protocols.http.auto \
+  --hidden-import=uvicorn.lifespan.on \
+  server.py
 
-chmod +x ../src-tauri/binaries/velocity-backend-x86_64-unknown-linux-gnu
-echo "✅ Python Sidecar Built Successfully!"
+# 3. No longer creating binaries directory, using src-tauri root
 
+# 4. Copy and rename for Tauri
+# Tauri requires the format: {name}-{target_triple}{extension}
+if [[ "$TARGET_TRIPLE" == *"windows"* ]]; then
+  DEST_FILE="$TAURI_BIN_DIR/velocity-backend-$TARGET_TRIPLE.exe"
+  cp dist/velocity-backend.exe "$DEST_FILE"
+else
+  DEST_FILE="$TAURI_BIN_DIR/velocity-backend-$TARGET_TRIPLE"
+  cp dist/velocity-backend "$DEST_FILE"
+  chmod +x "$DEST_FILE"
+fi
+
+echo "✅ Sidecar built successfully: $DEST_FILE"

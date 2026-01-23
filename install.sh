@@ -202,21 +202,26 @@ install_deps() {
         debian)
             spinner "Updating repos..." sudo apt update -qq || true
             spinner "Installing deps..." sudo apt install -y \
-                libwebkit2gtk-4.1-0 wl-clipboard xclip xsel libayatana-appindicator3-1 2>/dev/null || \
+                libwebkit2gtk-4.1-0 wl-clipboard xclip xsel libayatana-appindicator3-1 \
+                imagemagick avahi-utils 2>/dev/null || \
             spinner "Installing deps (fallback)..." sudo apt install -y \
-                libwebkit2gtk-4.1-0 wl-clipboard xclip xsel libappindicator3-1 || true
+                libwebkit2gtk-4.1-0 wl-clipboard xclip xsel libappindicator3-1 \
+                imagemagick avahi-utils || true
             ;;
         fedora)
             spinner "Installing deps..." sudo dnf install -y \
-                webkit2gtk4.1 wl-clipboard xclip xsel libappindicator-gtk3 || true
+                webkit2gtk4.1 wl-clipboard xclip xsel libappindicator-gtk3 \
+                ImageMagick avahi-tools || true
             ;;
         arch)
             spinner "Installing deps..." sudo pacman -S --noconfirm --needed \
-                webkit2gtk-4.1 wl-clipboard xclip xsel libappindicator-gtk3 || true
+                webkit2gtk-4.1 wl-clipboard xclip xsel libappindicator-gtk3 openssl \
+                imagemagick avahi || true
             ;;
         suse)
             spinner "Installing deps..." sudo zypper install -y \
-                webkit2gtk3-soup2 gtk3 wl-clipboard xclip xsel libappindicator3-1 || true
+                webkit2gtk3-soup2 gtk3 wl-clipboard xclip xsel libappindicator3-1 \
+                ImageMagick avahi-utils || true
             ;;
         void)
             spinner "Installing deps..." sudo xbps-install -y \

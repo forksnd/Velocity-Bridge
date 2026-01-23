@@ -645,22 +645,24 @@ async def upload_image(request: Request, payload: ImagePayload):
 
     # Convert HEIC to PNG if needed (for saved file)
     try:
-        is_heic = image_data[:12].find(b'ftyp') != -1
-        if is_heic:
-            logger.info("Converting HEIC upload to PNG...")
-            png_path = str(target_path.with_suffix('.png'))
-            # Use temp file for conversion source to avoid overwriting issues
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.tmp') as tmp:
-                tmp.write(image_data)
-                tmp_path = tmp.name
-            
-            # Convert: heif-convert OR convert (ImageMagick)
-            # We overwrite the target_path with the new PNG
-            process = subprocess.run(
-                f'(heif-convert "{tmp_path}" "{png_path}" 2>/dev/null || convert "{tmp_path}" "{png_path}" 2>/dev/null)',
-                shell=True,
-                check=False
-            )
+            # Improved HEIC detection: Check for 'ftypheic', 'ftypmif1', etc. at the start of the file
+            is_heic = any(x in image_data[4:12] for x in [b'ftypheic', b'ftypheix', b'ftyphevc', b'ftypmif1'])
+            if is_heic:
+                logger.info("Converting HEIC upload to PNG...")
+                png_path = str(target_path.with_suffix('.png'))
+                # Use temp file for conversion source
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.heic') as tmp:
+                    tmp.write(image_data)
+                    tmp_path = tmp.name
+                
+                # Conversion priority: magick (IM7) > convert (IM6) > heif-convert
+                process = subprocess.run(
+                    f'magick "{tmp_path}" "{png_path}" 2>/dev/null || '
+                    f'convert "{tmp_path}" "{png_path}" 2>/dev/null || '
+                    f'heif-convert "{tmp_path}" "{png_path}" 2>/dev/null',
+                    shell=True,
+                    check=False
+                )
             
             # Cleanup temp
             Path(tmp_path).unlink(missing_ok=True)
@@ -843,7 +845,38 @@ async def get_status(request: Request):
     check_ip_whitelist(request)
     
     import socket
-    hostname = socket.gethostname()
+    ip = get_local_ip()
+    
+    # Try to resolve actual mDNS hostname using avahi-resolve if available
+    hostname_display = None
+    try:
+        result = subprocess.run(
+            ["avahi-resolve", "-a", ip],
+            capture_output=True,
+            text=True,
+            timeout=2
+        )
+        if result.returncode == 0:
+            # Output format: "IP \t Hostname"
+            parts = result.stdout.strip().split()
+            if len(parts) >= 2:
+                hostname_display = parts[1]
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+
+    # Fallback to local hostname if avahi resolution failed
+    if not hostname_display:
+        hostname = socket.gethostname()
+        if hostname and hostname != "localhost" and not hostname.startswith("127."):
+            is_ip = False
+            try:
+                socket.inet_aton(hostname)
+                is_ip = True
+            except socket.error:
+                pass
+                
+            if not is_ip:
+                hostname_display = f"{hostname}.local"
 
     # Detect installation method
     # If the APPIMAGE environment variable is set, it's an AppImage (or Curl install)
@@ -853,7 +886,7 @@ async def get_status(request: Request):
         "status": "running",
         "version": VERSION,
         "ip": get_local_ip(),
-        "hostname": f"{hostname}.local",  # mDNS format
+        "hostname": hostname_display,  # mDNS format or None
         "port": 8080,
         "token": SECURITY_TOKEN,  # Send token so UI can display it
         "clients": len(SESSION_STATS["unique_ips"]),

@@ -32,7 +32,7 @@
       "icons/icon.ico"
     ],
     "externalBin": [
-      "binaries/velocity-backend"
+      "velocity-backend"
     ],
     "createUpdaterArtifacts": false,
     "linux": {
@@ -57,6 +57,7 @@
   },
   "plugins": {
     "updater": {
+      "pubkey": "RWR2l4VtGrP1rpf4csByKPRP8tuk25aV4uQSv21k2sbh0kE+ZfF4SUfz",
       "endpoints": [
         "https://github.com/Trex099/Velocity-Bridge/releases/latest/download/latest.json"
       ]
