@@ -645,24 +645,59 @@ async def upload_image(request: Request, payload: ImagePayload):
 
     # Convert HEIC to PNG if needed (for saved file)
     try:
-            # Improved HEIC detection: Check for 'ftypheic', 'ftypmif1', etc. at the start of the file
-            is_heic = any(x in image_data[4:12] for x in [b'ftypheic', b'ftypheix', b'ftyphevc', b'ftypmif1'])
-            if is_heic:
-                logger.info("Converting HEIC upload to PNG...")
-                png_path = str(target_path.with_suffix('.png'))
-                # Use temp file for conversion source
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.heic') as tmp:
-                    tmp.write(image_data)
-                    tmp_path = tmp.name
+            # Improved HEIC detection and native conversion using pillow-heif
+            # This is bundled in the sidecar, so it works without system ImageMagick
+            try:
+                from PIL import Image
+                import pillow_heif
                 
-                # Conversion priority: magick (IM7) > convert (IM6) > heif-convert
-                process = subprocess.run(
-                    f'magick "{tmp_path}" "{png_path}" 2>/dev/null || '
-                    f'convert "{tmp_path}" "{png_path}" 2>/dev/null || '
-                    f'heif-convert "{tmp_path}" "{png_path}" 2>/dev/null',
-                    shell=True,
-                    check=False
-                )
+                # Check for HEIC signature
+                is_heic = pillow_heif.is_supported(image_data)
+                if is_heic:
+                    logger.info("Converting HEIC upload to PNG using native decoder...")
+                    png_path = str(target_path.with_suffix('.png'))
+                    
+                    heif_file = pillow_heif.read_heif(image_data)
+                    image = Image.frombytes(
+                        heif_file.mode,
+                        heif_file.size,
+                        heif_file.data,
+                        "raw",
+                    )
+                    image.save(png_path, format="PNG")
+                    
+                    if Path(png_path).exists():
+                        if str(target_path) != png_path:
+                            target_path.unlink(missing_ok=True)
+                            target_path = Path(png_path)
+                        logger.info(f"Native conversion successful: {target_path}")
+                        # Update image_data and is_heic for further processing if needed
+                        image_data = target_path.read_bytes()
+                        is_heic = False 
+            except Exception as e:
+                logger.warning(f"Native HEIC conversion failed, falling back to system tools: {e}")
+                
+                # Fallback to system tools if the library fails
+                is_heic = any(x in image_data[4:12] for x in [b'ftypheic', b'ftypheix', b'ftyphevc', b'ftypmif1'])
+                if is_heic:
+                    png_path = str(target_path.with_suffix('.png'))
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.heic') as tmp:
+                        tmp.write(image_data)
+                        tmp_path = tmp.name
+                    
+                    process = subprocess.run(
+                        f'magick "{tmp_path}" "{png_path}" 2>/dev/null || '
+                        f'convert "{tmp_path}" "{png_path}" 2>/dev/null || '
+                        f'heif-convert "{tmp_path}" "{png_path}" 2>/dev/null',
+                        shell=True,
+                        check=False
+                    )
+                    Path(tmp_path).unlink(missing_ok=True)
+                    if process.returncode == 0 and Path(png_path).exists():
+                        if str(target_path) != png_path:
+                            target_path.unlink(missing_ok=True)
+                            target_path = Path(png_path)
+                        image_data = target_path.read_bytes()
             
             # Cleanup temp
             Path(tmp_path).unlink(missing_ok=True)
@@ -847,24 +882,45 @@ async def get_status(request: Request):
     import socket
     ip = get_local_ip()
     
-    # Try to resolve actual mDNS hostname using avahi-resolve if available
+    # Try to resolve actual mDNS hostname natively using zeroconf
+    # This works without any system binaries (avahi-resolve etc)
     hostname_display = None
     try:
-        result = subprocess.run(
-            ["avahi-resolve", "-a", ip],
-            capture_output=True,
-            text=True,
-            timeout=2
-        )
-        if result.returncode == 0:
-            # Output format: "IP \t Hostname"
-            parts = result.stdout.strip().split()
-            if len(parts) >= 2:
-                hostname_display = parts[1]
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        pass
+        from zeroconf import Zeroconf
+        import socket as py_socket
+        
+        # We try to find the name of the current machine in mDNS
+        # This is a bit of a hack: we just want to see how the network identifies us
+        zc = Zeroconf()
+        try:
+            # Most Linux systems register their hostname.local automatically
+            host = py_socket.gethostname()
+            if not host.endswith(".local"):
+                host = f"{host}.local"
+            # If zeroconf can see it, that's what the iPhone will see too
+            hostname_display = host
+        finally:
+            zc.close()
+    except Exception as e:
+        logger.debug(f"Zeroconf detection failed: {e}")
 
-    # Fallback to local hostname if avahi resolution failed
+    # Fallback to subprocess avahi-resolve if zeroconf failed
+    if not hostname_display:
+        try:
+            result = subprocess.run(
+                ["avahi-resolve", "-a", ip],
+                capture_output=True,
+                text=True,
+                timeout=1
+            )
+            if result.returncode == 0:
+                parts = result.stdout.strip().split()
+                if len(parts) >= 2:
+                    hostname_display = parts[1]
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+
+    # Last resort: Construct it manually
     if not hostname_display:
         hostname = socket.gethostname()
         if hostname and hostname != "localhost" and not hostname.startswith("127."):
