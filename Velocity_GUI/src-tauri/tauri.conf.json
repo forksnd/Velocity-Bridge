@@ -57,7 +57,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "RWR2l4VtGrP1rpf4csByKPRP8tuk25aV4uQSv21k2sbh0kE+ZfF4SUfz",
+      "pubkey": "RWQRWkJmclhOS3hQL3Z6NlIxY2pPbUVaUmc4YkFnS1RYS2pOVWJKU3RZeXp1WUhyei93cUpKODk=",
       "endpoints": [
         "https://github.com/Trex099/Velocity-Bridge/releases/latest/download/latest.json"
       ]
