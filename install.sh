@@ -203,20 +203,23 @@ install_deps() {
             spinner "Updating repos..." sudo apt update -qq || true
             spinner "Installing deps..." sudo apt install -y \
                 libwebkit2gtk-4.1-0 wl-clipboard xclip xsel libayatana-appindicator3-1 \
-                imagemagick avahi-utils 2>/dev/null || \
+                imagemagick avahi-utils curl 2>/dev/null || \
             spinner "Installing deps (fallback)..." sudo apt install -y \
                 libwebkit2gtk-4.1-0 wl-clipboard xclip xsel libappindicator3-1 \
-                imagemagick avahi-utils || true
+                imagemagick avahi-utils curl || true
+            spinner "Enabling Avahi..." sudo systemctl enable --now avahi-daemon || true
             ;;
         fedora)
             spinner "Installing deps..." sudo dnf install -y \
                 webkit2gtk4.1 wl-clipboard xclip xsel libappindicator-gtk3 \
-                ImageMagick avahi-tools || true
+                ImageMagick avahi-tools curl fuse || true
+            spinner "Enabling Avahi..." sudo systemctl enable --now avahi-daemon || true
             ;;
         arch)
             spinner "Installing deps..." sudo pacman -S --noconfirm --needed \
                 webkit2gtk-4.1 wl-clipboard xclip xsel libappindicator-gtk3 openssl \
-                imagemagick avahi || true
+                imagemagick avahi curl || true
+            spinner "Enabling Avahi..." sudo systemctl enable --now avahi-daemon || true
             ;;
         suse)
             spinner "Installing deps..." sudo zypper install -y \
@@ -247,12 +250,10 @@ install_fuse() {
     local d="$1"
     info "Installing FUSE..."
     case "$d" in
-        debian) spinner "FUSE..." sudo apt install -y libfuse2 || true ;;
-        fedora) spinner "FUSE..." sudo dnf install -y fuse || true ;;
-        arch)   spinner "FUSE..." sudo pacman -S --noconfirm fuse2 || true ;;
-        suse)   spinner "FUSE..." sudo zypper install -y fuse || true ;;
-        void)   spinner "FUSE..." sudo xbps-install -y fuse || true ;;
-        alpine) spinner "FUSE..." sudo apk add fuse || true ;;
+        debian) spinner "FUSE..." sudo apt install -y libfuse2 fuse3 || true ;;
+        fedora) spinner "FUSE..." sudo dnf install -y fuse fuse-libs || true ;;
+        arch)   spinner "FUSE..." sudo pacman -S --noconfirm fuse2 fuse3 || true ;;
+        suse)   spinner "FUSE..." sudo zypper install -y fuse3 || true ;;
         *) warn "Install FUSE manually" ;;
     esac
 }
@@ -413,16 +414,18 @@ do_appimage() {
 setup_firewalld() {
     command -v firewall-cmd &>/dev/null || return
     systemctl is-active --quiet firewalld || return
-    info "Opening port 8080..."
+    info "Opening firewall ports (8080 & mDNS)..."
     sudo firewall-cmd --add-port=8080/tcp --permanent &>/dev/null || true
+    sudo firewall-cmd --add-service=mdns --permanent &>/dev/null || true
     sudo firewall-cmd --reload &>/dev/null || true
 }
 
 setup_ufw() {
     command -v ufw &>/dev/null || return
     sudo ufw status 2>/dev/null | grep -q "Status: active" || return
-    info "Opening port 8080..."
+    info "Opening firewall ports (8080 & mDNS)..."
     sudo ufw allow 8080/tcp &>/dev/null || true
+    sudo ufw allow 5353/udp &>/dev/null || true
 }
 
 create_desktop() {
