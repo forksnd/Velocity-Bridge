@@ -1,11 +1,11 @@
 {
-    "version": "3.0.0",
-    "notes": "v3.0.0 - Bidirectional Sync, In-App Updater, Autostart",
-    "pub_date": "2025-12-31T14:57:00Z",
+    "version": "3.0.2",
+    "notes": "v3.0.2 - Notification toggle, Start Minimized, Onboarding",
+    "pub_date": "2026-03-04T09:18:00Z",
     "platforms": {
         "linux-x86_64": {
-            "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIG1pbmlzaWduIHNlY3JldCBrZXkKUlVSMmw0VnRHclAxcmxqU1M2K1VlOXFiY29CcmxROFlud01SUTJnbng4TWdIYWVkblFGRUFhNUJSUndUdXJselNzclJFZ1JsRk5vRUI4ajJxaEJuYlVJQk9ZY3BZU2lDQlFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzY3MTkzMjM5CWZpbGU6VmVsb2NpdHktQnJpZGdlXzMuMC4wX2FtZDY0LkFwcEltYWdlLnRhci5negloYXNoZWQKOVNRbjFVR1dwRkZoZjRmQno3UTFHOC92ZTNyQS8zYVY1cmtKclU4WG50QktDYnN3ejVmOXhkK1hURDBOZWRVSGgxV3hTMUZ3Rm5XT0k3QnBEb0t0Qnc9PQo=",
-            "url": "https://github.com/Trex099/Velocity-Bridge/releases/download/v3.0.0/Velocity-Bridge_3.0.0_amd64.AppImage.tar.gz"
+            "signature": "",
+            "url": "https://github.com/Trex099/Velocity-Bridge/releases/download/v3.0.2/Velocity-Bridge_3.0.2_amd64.AppImage"
         }
     }
 }

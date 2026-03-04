@@ -268,6 +268,13 @@ cleanup() {
     command -v pacman &>/dev/null && sudo pacman -Rns --noconfirm velocity-bridge 2>/dev/null || true
     
     rm -f "$BIN_DIR/velocity-bridge" "$APP_DIR/velocity-bridge.desktop" "$ICON_DIR/velocity-bridge.png" 2>/dev/null || true
+
+    # Clear Tauri webview localStorage so onboarding shows on next launch.
+    # NOTE: ~/.config/velocity-bridge (token, history, settings) is intentionally
+    # preserved so users don't lose their data on updates.
+    rm -rf "$HOME/.local/share/com.arsh.velocity-bridge/localstorage" 2>/dev/null || true
+    rm -rf "$HOME/.local/share/velocity_tauri/localstorage" 2>/dev/null || true
+
     ok "Cleanup done"
 }
 
