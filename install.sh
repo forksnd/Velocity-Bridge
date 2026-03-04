@@ -269,11 +269,12 @@ cleanup() {
     
     rm -f "$BIN_DIR/velocity-bridge" "$APP_DIR/velocity-bridge.desktop" "$ICON_DIR/velocity-bridge.png" 2>/dev/null || true
 
-    # Clear Tauri webview localStorage so onboarding shows on next launch.
-    # NOTE: ~/.config/velocity-bridge (token, history, settings) is intentionally
-    # preserved so users don't lose their data on updates.
-    rm -rf "$HOME/.local/share/com.arsh.velocity-bridge/localstorage" 2>/dev/null || true
-    rm -rf "$HOME/.local/share/velocity_tauri/localstorage" 2>/dev/null || true
+    # Only reset onboarding for fresh installs (no existing config).
+    # Existing users upgrading keep their onboarding-complete flag.
+    if [[ ! -f "$HOME/.config/velocity-bridge/settings.json" ]]; then
+        rm -rf "$HOME/.local/share/com.arsh.velocity-bridge/localstorage" 2>/dev/null || true
+        rm -rf "$HOME/.local/share/velocity_tauri/localstorage" 2>/dev/null || true
+    fi
 
     # Clear version cache so we always fetch the latest from GitHub
     rm -f "$CACHE_DIR/latest_version" 2>/dev/null || true
