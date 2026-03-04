@@ -277,7 +277,10 @@ def copy_to_clipboard(text: str) -> bool:
 
 
 def send_notification(title: str, message: str, sound: str = "complete") -> None:
-    """Send a desktop notification with sound."""
+    """Send a desktop notification — only if notifications are enabled in settings."""
+    cfg = load_config()
+    if not cfg.get("notifications_enabled", True):
+        return
     notification_sent = False
     
     # Try notify-send (most widely available)
@@ -949,6 +952,42 @@ async def get_status(request: Request):
         "requests": SESSION_STATS["request_count"],
         "install_method": install_method,
     }
+
+
+@app.get("/settings")
+async def get_settings(request: Request):
+    """Return user-facing settings."""
+    check_ip_whitelist(request)
+    cfg = load_config()
+    return {
+        "notifications_enabled": cfg.get("notifications_enabled", True),
+        "start_minimized": cfg.get("start_minimized", False),
+    }
+
+
+@app.post("/settings")
+async def update_settings(request: Request):
+    """Persist user-facing settings to settings.json."""
+    import json
+    check_ip_whitelist(request)
+    body = await request.json()
+    cfg = load_config()
+    config_file = CONFIG_DIR / "settings.json"
+
+    # Only update recognised keys
+    if "notifications_enabled" in body:
+        cfg["notifications_enabled"] = bool(body["notifications_enabled"])
+    if "start_minimized" in body:
+        cfg["start_minimized"] = bool(body["start_minimized"])
+
+    try:
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        config_file.write_text(json.dumps(cfg, indent=2))
+    except Exception as e:
+        logger.warning(f"Failed to save settings: {e}")
+        raise HTTPException(status_code=500, detail="Could not persist settings")
+
+    return {"ok": True, **cfg}
 
 
 @app.post("/clipboard")

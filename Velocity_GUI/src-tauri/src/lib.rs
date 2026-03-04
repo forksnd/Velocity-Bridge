@@ -49,6 +49,34 @@ pub fn run() {
         }))
         .invoke_handler(tauri::generate_handler![get_install_type, install_update])
         .setup(|app| {
+            // ── Decide window visibility on startup ──────────────────────────────
+            // Window is always created hidden (tauri.conf.json: "visible": false).
+            // Show it unless: (a) --silent/-s passed, or (b) start_minimized in settings.
+            let silent_flag = std::env::args().any(|a| a == "--silent" || a == "-s");
+
+            let start_minimized = {
+                let config_dir = dirs::home_dir()
+                    .unwrap_or_default()
+                    .join(".config")
+                    .join("velocity-bridge");
+                let settings_path = config_dir.join("settings.json");
+                if let Ok(raw) = std::fs::read_to_string(&settings_path) {
+                    if let Ok(val) = serde_json::from_str::<serde_json::Value>(&raw) {
+                        val.get("start_minimized")
+                            .and_then(|v| v.as_bool())
+                            .unwrap_or(false)
+                    } else { false }
+                } else { false }
+            };
+
+            if !silent_flag && !start_minimized {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                }
+            }
+            // ────────────────────────────────────────────────────────────────────
+
             // Create tray menu
             let show = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;

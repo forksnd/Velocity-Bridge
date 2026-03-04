@@ -1,5 +1,5 @@
 Name:           velocity-bridge
-Version: 3.0.1
+Version: 3.0.2
 Release:        1%{?dist}
 Summary:        iOS to Linux Clipboard Sync
 
@@ -73,6 +73,14 @@ update-desktop-database %{_datadir}/applications &>/dev/null || :
 %{_datadir}/icons/hicolor/256x256/apps/velocity-bridge.png
 
 %changelog
+* Tue Mar 04 2025 Trex099 <trex099@github.com> - 3.0.2-1
+- Seamless onboarding flow with animated transition
+- Improved Wayland/XWayland render fallback with watchdog
+- Security: restrict CORS to local origins only
+- Security: IP whitelisting enabled by default
+- Refactored token management into Tauri (Rust) side
+- Improved HEIC conversion pipeline
+
 * Tue Dec 31 2024 Trex099 <trex099@github.com> - 3.0.0-1
 - Bidirectional clipboard sync (iOS <-> Linux)
 - Image clipboard support

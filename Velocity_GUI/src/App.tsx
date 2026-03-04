@@ -59,6 +59,10 @@ function App() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [autostart, setAutostart] = useState(false);
   const [isTogglingAutostart, setIsTogglingAutostart] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [startMinimized, setStartMinimized] = useState(false);
+  const [isTogglingNotifications, setIsTogglingNotifications] = useState(false);
+  const [isTogglingStartMinimized, setIsTogglingStartMinimized] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem("velocityOnboardingCompleted");
   });
@@ -352,18 +356,27 @@ function App() {
     );
   });
 
-  // Check for updates and autostart on first successful server connection
+  // Load settings including notifications and start_minimized from backend
   useEffect(() => {
     if (serverStatus?.version) {
-      // Only auto-check for updates once on startup
       const lastCheck = sessionStorage.getItem("lastUpdateCheck");
       if (!lastCheck) {
         checkForUpdates();
         sessionStorage.setItem("lastUpdateCheck", "true");
       }
       checkAutostart();
+      // Load backend settings
+      fetch("http://localhost:8080/settings")
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data) {
+            setNotificationsEnabled(data.notifications_enabled ?? true);
+            setStartMinimized(data.start_minimized ?? false);
+          }
+        })
+        .catch(() => { });
     }
-  }, [serverStatus?.version]); // Only trigger when version is FIRST received
+  }, [serverStatus?.version]);
 
   // Check if autostart is enabled
   const checkAutostart = async () => {
@@ -396,6 +409,50 @@ function App() {
       showStatus("Autostart toggle failed");
     } finally {
       setIsTogglingAutostart(false);
+    }
+  };
+
+  // Toggle desktop notifications
+  const toggleNotifications = async () => {
+    if (isTogglingNotifications) return;
+    setIsTogglingNotifications(true);
+    const next = !notificationsEnabled;
+    try {
+      const res = await fetch("http://localhost:8080/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notifications_enabled: next }),
+      });
+      if (res.ok) {
+        setNotificationsEnabled(next);
+        showStatus(next ? "Notifications enabled" : "Notifications disabled");
+      }
+    } catch {
+      showStatus("Failed to update notification setting");
+    } finally {
+      setIsTogglingNotifications(false);
+    }
+  };
+
+  // Toggle start minimized
+  const toggleStartMinimized = async () => {
+    if (isTogglingStartMinimized) return;
+    setIsTogglingStartMinimized(true);
+    const next = !startMinimized;
+    try {
+      const res = await fetch("http://localhost:8080/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ start_minimized: next }),
+      });
+      if (res.ok) {
+        setStartMinimized(next);
+        showStatus(next ? "Will start minimized" : "Will show on startup");
+      }
+    } catch {
+      showStatus("Failed to update start minimized setting");
+    } finally {
+      setIsTogglingStartMinimized(false);
     }
   };
 
@@ -851,6 +908,31 @@ function App() {
                         type="checkbox"
                         checked={autostart}
                         onChange={toggleAutostart}
+                        disabled={isTogglingAutostart}
+                      />
+                    </div>
+                    <div className="setting-item">
+                      <div>
+                        <label>Start Minimized to Tray</label>
+                        <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#888' }}>App starts hidden; click tray icon to show</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={startMinimized}
+                        onChange={toggleStartMinimized}
+                        disabled={isTogglingStartMinimized}
+                      />
+                    </div>
+                    <div className="setting-item">
+                      <div>
+                        <label>Desktop Notifications</label>
+                        <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#888' }}>Show notification when clipboard is received</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={notificationsEnabled}
+                        onChange={toggleNotifications}
+                        disabled={isTogglingNotifications}
                       />
                     </div>
                   </div>

@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-VERSION="3.0.1"
+VERSION="3.0.2"
 RELEASE_DIR="../$VERSION release"
 PROJECT_ROOT=$(pwd)
 TAURI_BUNDLE_DIR="src-tauri/target/release/bundle"
