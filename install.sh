@@ -275,6 +275,9 @@ cleanup() {
     rm -rf "$HOME/.local/share/com.arsh.velocity-bridge/localstorage" 2>/dev/null || true
     rm -rf "$HOME/.local/share/velocity_tauri/localstorage" 2>/dev/null || true
 
+    # Clear version cache so we always fetch the latest from GitHub
+    rm -f "$CACHE_DIR/latest_version" 2>/dev/null || true
+
     ok "Cleanup done"
 }
 
