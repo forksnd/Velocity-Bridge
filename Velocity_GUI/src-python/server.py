@@ -1158,7 +1158,7 @@ if __name__ == "__main__":
         logger.warning("Attempting to start anyway (it will likely fail to bind)...")
         
     try:
-        uvicorn.run(app, host="0.0.0.0", port=PORT)
+        uvicorn.run(app, host="0.0.0.0", port=PORT, access_log=False)
     except Exception as e:
         logger.error(f"Failed to start server: {e}")
         sys.exit(1)

@@ -35,7 +35,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 # Version
-VERSION = "3.0.2"
+VERSION = "3.0.3"
 
 # Setup logging
 LOG_DIR = Path.home() / "AppData" / "Local" / "VelocityBridge" / "Logs"

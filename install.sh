@@ -9,7 +9,7 @@
 set -euo pipefail
 
 VERSION="2.0.0"
-FALLBACK_VER="3.0.2"
+FALLBACK_VER="3.0.3"
 REPO="Trex099/Velocity-Bridge"
 
 BIN_DIR="$HOME/.local/bin"

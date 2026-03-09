@@ -43,6 +43,8 @@ interface ServerStatus {
   install_method?: "appimage" | "native";
 }
 
+const RESTART_DELAY_MS = 1500;
+
 function App() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "history" | "qr" | "settings">("dashboard");
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -86,9 +88,69 @@ function App() {
 
   // Store child process reference
   const childRef = useRef<{ pid: number; kill: () => Promise<void> } | null>(null);
+  const commandRef = useRef<any | null>(null);
+  const restartTimerRef = useRef<number | null>(null);
+  const isStartingRef = useRef(false);
+  const isStoppingRef = useRef(false);
+  const serverEnabledRef = useRef(serverEnabled);
+
+  useEffect(() => {
+    serverEnabledRef.current = serverEnabled;
+  }, [serverEnabled]);
+
+  const clearRestartTimer = () => {
+    if (restartTimerRef.current !== null) {
+      window.clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
+  };
+
+  const clearCommandListeners = () => {
+    if (!commandRef.current) return;
+    commandRef.current.removeAllListeners();
+    commandRef.current.stdout.removeAllListeners();
+    commandRef.current.stderr.removeAllListeners();
+    commandRef.current = null;
+  };
+
+  const scheduleServerRestart = (reason: string) => {
+    if (isStoppingRef.current || isStartingRef.current || !serverEnabledRef.current) {
+      return;
+    }
+
+    clearRestartTimer();
+    setConnectionStatus(reason);
+    restartTimerRef.current = window.setTimeout(() => {
+      restartTimerRef.current = null;
+      if (!isStoppingRef.current && serverEnabledRef.current && !childRef.current) {
+        void startServer();
+      }
+    }, RESTART_DELAY_MS);
+  };
+
+  const handleBackendExit = (reason: string) => {
+    childRef.current = null;
+    clearCommandListeners();
+    setServerStatus(null);
+
+    if (isStoppingRef.current || !serverEnabledRef.current) {
+      setConnectionStatus("Server stopped");
+      return;
+    }
+
+    scheduleServerRestart(reason);
+  };
 
   // Start sidecar function
   const startServer = async () => {
+    if (isStartingRef.current) {
+      return;
+    }
+
+    isStartingRef.current = true;
+    isStoppingRef.current = false;
+    clearRestartTimer();
+
     try {
       console.log("Attempting to spawn sidecar...");
       setConnectionStatus("Starting server...");
@@ -103,22 +165,43 @@ function App() {
       }
 
       const command = Command.sidecar("velocity-backend");
+      commandRef.current = command;
+      command.stdout.on("data", (line: string) => {
+        console.debug("[velocity-backend]", line);
+      });
+      command.stderr.on("data", (line: string) => {
+        console.warn("[velocity-backend]", line);
+      });
+      command.on("error", (error: string) => {
+        console.error("Backend process error:", error);
+        handleBackendExit("Backend error. Restarting...");
+      });
+      command.on("close", ({ code, signal }: { code: number | null; signal: number | null }) => {
+        console.warn("Backend process closed:", { code, signal });
+        handleBackendExit("Backend stopped. Restarting...");
+      });
+
       const child = await command.spawn();
       childRef.current = child;
       console.log("Sidecar spawned with PID:", child.pid);
       setConnectionStatus("Connecting...");
       setServerEnabled(true);
     } catch (err: unknown) {
+      clearCommandListeners();
       console.error("Failed to spawn sidecar:", err);
       const errorMsg = err instanceof Error ? err.message : String(err);
       setConnectionStatus("Spawn Error: " + errorMsg.substring(0, 30));
       setServerEnabled(false);
+    } finally {
+      isStartingRef.current = false;
     }
   };
 
   // Stop sidecar function
   const stopServer = async () => {
     console.log("Stopping server...");
+    isStoppingRef.current = true;
+    clearRestartTimer();
 
     // 1. Try graceful shutdown via API
     if (serverStatus?.token) {
@@ -161,6 +244,7 @@ function App() {
       setServerEnabled(false);
       setConnectionStatus("Server stopped");
       setServerStatus(null);
+      clearCommandListeners();
     } catch (err) {
       console.error("Failed to stop sidecar:", err);
     }
@@ -184,7 +268,10 @@ function App() {
 
     // Listen for window close to cleanup server
     // Removed setupCloseHandler to keep server running when window is hidden
-
+    return () => {
+      clearRestartTimer();
+      clearCommandListeners();
+    };
   }, []);
 
   // Poll History & Status
@@ -211,10 +298,12 @@ function App() {
             }
           }
         } else {
+          setServerStatus(null);
           setConnectionStatus("Reconnecting...");
         }
       } catch (e) {
         console.error("Fetch error:", e);
+        setServerStatus(null);
         setConnectionStatus("Reconnecting...");
       }
     };
@@ -277,7 +366,7 @@ function App() {
         setUpdateInfo({
           available: true,
           latestVersion: update.version,
-          currentVersion: serverStatus?.version || "3.0.0",
+          currentVersion: serverStatus?.version || "3.0.3",
           updaterHandle: update
         });
         showStatus("Update available!");
@@ -286,7 +375,7 @@ function App() {
         setUpdateInfo({
           available: false,
           latestVersion: "",
-          currentVersion: serverStatus?.version || "3.0.0"
+          currentVersion: serverStatus?.version || "3.0.3"
         });
         showStatus("You're up to date");
       }
@@ -964,7 +1053,7 @@ function App() {
                         <label>Application Version</label>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           <span style={{ fontFamily: 'monospace', background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px', fontSize: '13px' }}>
-                            v{serverStatus?.version || "3.0.0"}
+                            v{serverStatus?.version || "3.0.3"}
                           </span>
                           {updateInfo?.available && !isDownloading && (
                             <span className="update-badge" style={{ background: '#007AFF', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>

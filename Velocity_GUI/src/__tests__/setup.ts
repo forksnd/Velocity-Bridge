@@ -1,10 +1,21 @@
 import { vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
+const createEmitter = () => ({
+    on: vi.fn(),
+    removeAllListeners: vi.fn(),
+});
+
 // Mock all Tauri plugins before any component imports
 vi.mock('@tauri-apps/plugin-shell', () => ({
     Command: {
-        sidecar: vi.fn(() => ({ spawn: vi.fn() })),
+        sidecar: vi.fn(() => ({
+            on: vi.fn(),
+            removeAllListeners: vi.fn(),
+            stdout: createEmitter(),
+            stderr: createEmitter(),
+            spawn: vi.fn(() => Promise.resolve({ pid: 1234, kill: vi.fn() })),
+        })),
         create: vi.fn(() => ({ execute: vi.fn() })),
     },
 }));
